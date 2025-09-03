@@ -1,0 +1,12 @@
+
+# fancy secret stuff that just contains my xsts tokens in plain text (no sharing these for now)
+# actually this is just a folder for dumped HTTP traffic from MCC, so i can use vscodes intuitive search functionalities
+secret_stuff/
+# and this is just basic call 1 function on button press code, but contains all the dumped packets that im currently investigating
+scripts/main.js 
+
+
+
+node_modules/
+package-lock.json
+package.json

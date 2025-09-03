@@ -1,0 +1,13 @@
+
+{
+"version": "0.2.0",
+"configurations": [
+{
+"type": "msedge",
+"request": "launch",
+"name": "Launch Edge",
+//"url": "http://localhost:3000", // Replace with your app's URL
+"file": "D:\\Projects\\VScode\\226_api\\index.html"
+}
+]
+}
