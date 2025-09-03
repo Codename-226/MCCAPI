@@ -1,5 +1,5 @@
 /* Titles
-  HaloMCC: '000000004825fc1f',
+  HaloMCC: '000000004825fc1f', 
   MinecraftNintendoSwitch: '00000000441cc96b',
   MinecraftPlaystation: '000000004827c78e',
   MinecraftAndroid: '0000000048183522',
@@ -8,7 +8,7 @@
   XboxAppIOS: '000000004c12ae6f',
   XboxGamepassIOS: '000000004c20a908'
 */
-const clientId = '00000000441cc96b'
+const clientId = '000000004825fc1f'
 const scopes = ['service::user.auth.xboxlive.com::MBI_SSL']
 
 async function refreshTokens(xbl_token) {

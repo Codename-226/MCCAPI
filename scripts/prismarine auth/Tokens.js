@@ -100,6 +100,9 @@ async function Storage_GetXSTSToken(){
 async function getXboxToken() {
 	try{
 		await InitXboxCrypto();  // just generates keys and stuff
+        Sisu_BeginAuth();
+        return;
+		await InitXboxCrypto();  // just generates keys and stuff
 		Storage_LoadTokens();
 		PlayfabTicket();
 	   //return Storage_GetXSTSToken();
