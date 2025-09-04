@@ -5,6 +5,8 @@ async function SisuStep2() {
     Sisu_AuthCode(inputValue);
 }
 
+SisuSessionID = undefined;
+
 // wow epic, our current auth system doesn't replicate what MCC does, so we cant use the same client IDs and get proper auth on the playfab APIs!!!
 PKCE_code_verifier = undefined
 PKCE_code_challenge = undefined
@@ -12,6 +14,16 @@ PKCE_state = undefined
 
 // WARNING: it just works, could be optimized but whatever
 async function PKCE_generate(){
+    function base64(uint8array) {
+        // Convert Uint8Array to binary string
+        const binary = String.fromCharCode(...uint8array);
+
+        // Encode to Base64
+        let base64 = btoa(binary);
+
+        // Make it URL-safe (RFC 7636)
+        return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
     const state = new Uint8Array(64);
     crypto.getRandomValues(state);
     PKCE_state = base64(new Uint8Array(state));
@@ -37,7 +49,7 @@ async function PKCE_generate(){
 }
 
 async function Sisu_BeginAuth(){
-    device_token = await Storage_GetDeviceToken();
+    const device_token = await Storage_GetDeviceToken();
     await PKCE_generate();
     const payload = {
         "AppId":clientId,
@@ -66,35 +78,150 @@ async function Sisu_BeginAuth(){
         "x-xbl-contract-version":"1",
     }
     const res = await fetch('https://sisu.xboxlive.com/authenticate', { method: 'post', headers, body })
+    SisuSessionID = res.headers.get('X-SessionId');
     const data = await res.json();
     console.log(data);
     window.open(data.MsaOauthRedirect, '_blank');
 }
 
 async function Sisu_AuthCode(code){
-    const payload = new URLSearchParams({
-        client_id: clientId,
-        code: code,
-        code_verifier: PKCE_code_verifier,
-        grant_type: 'authorization_code',
-        redirect_uri: 'https://login.live.com/oauth20_desktop.srf',
-        scope: 'xboxlive.signin offline_access'
+        const payload = new URLSearchParams({
+            client_id: clientId,
+            code: code,
+            code_verifier: PKCE_code_verifier,
+            grant_type: 'authorization_code',
+            redirect_uri: 'https://login.live.com/oauth20_desktop.srf',
+            scope: 'xboxlive.signin offline_access'
+        });
+        const headers = {
+            "Connection":"Keep-Alive",
+            "Content-Type":"application/x-www-form-urlencoded; charset=utf-8",
+            "MS-CV":"XOjuYsE7X8zUuM5r.5.2",
+            "User-Agent":"XAL Win32 2020.11.20201204.001",
+        }
+        const body = payload.toString();
+        console.log(body)
+        const res = await fetch('https://login.live.com/oauth20_token.srf', {
+            method: 'POST',
+            headers,
+            body: body
+        });
+        const token = await res.json(); 
+        console.log(token);
+        sisu_xbl_token_100 = {...token, expiresOn: new Date(Date.now() + token.expires_in)};
+        Storage_write_sisuxbl(sisu_xbl_token_100);
+
+        Storage_GetXSTSToken();
+        return;
+
+
+    const __body = {
+        RelyingParty: 'http://auth.xboxlive.com',
+        TokenType: 'JWT',
+        Properties: {
+            AuthMethod: 'RPS',
+            SiteName: 'user.auth.xboxlive.com',
+            // IMPORTANT: prefix with "d="
+            RpsTicket: `d=${token.access_token}`
+        }
+    };
+
+    const __res = await fetch('https://user.auth.xboxlive.com/user/authenticate', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'x-xbl-contract-version': '1'
+        },
+        body: JSON.stringify(__body)
     });
+    console.log(__res)
+    const respot = await __res.text(); 
+    console.log("respot")
+    console.log(respot)
+    
+}
+
+
+
+
+
+  async function doSisuAuth (accessToken, deviceToken) {
+    const payload = {
+      AccessToken: 'd=' + accessToken,
+      AppId: clientId,
+      DeviceToken: deviceToken,
+      Sandbox: 'RETAIL',
+      UseModernGamertag: true,
+      SiteName: 'user.auth.xboxlive.com',
+      RelyingParty: "http://xboxlive.com",
+      ProofKey: xbox_jwk
+    }
+
+    const body = JSON.stringify(payload)
+
+    const signature = await sign('https://sisu.xboxlive.com/authorize', '', body)
+
+    const headers = { Signature: signature }
+
+    const req = await fetch('https://sisu.xboxlive.com/authorize', { method: 'post', headers, body })
+    const ret = await req.text()
+    if (!req.ok) checkTokenError(parseInt(req.headers.get('x-err')), ret)
+
+    console.log('Sisu Auth Response', ret)
+    const xsts = {
+      userXUID: ret.AuthorizationToken.DisplayClaims.xui[0].xid || null,
+      userHash: ret.AuthorizationToken.DisplayClaims.xui[0].uhs,
+      XSTSToken: ret.AuthorizationToken.Token,
+      expiresOn: ret.AuthorizationToken.NotAfter
+    }
+
+    //await this.setCachedToken({ userToken: ret.UserToken, titleToken: ret.TitleToken, [createHash(options.relyingParty)]: xsts })
+
+    console.log('[xbl] xsts', xsts)
+    return xsts
+  }
+
+
+
+
+
+async function Sisu_AuthUser(sisu_xbl_tokens){
+    const device_token = await Storage_GetDeviceToken();
+
+
+    const payload = {
+        "AccessToken":'d=' +sisu_xbl_tokens.access_token,
+        "AppId":clientId,
+        "DeviceToken":device_token.Token,
+        "Sandbox":"RETAIL",
+        "UseModernGamertag":true,
+        "SiteName":"user.auth.xboxlive.com",
+        "RelyingParty":"http://xboxlive.com",
+        "SessionId":SisuSessionID, 
+        "ProofKey":xbox_jwk
+    }
+
+    
+    const body = JSON.stringify(payload);
+
+    const signature = await sign('https://sisu.xboxlive.com/authorize', '', body);
     const headers = {
-        "Connection":"Keep-Alive",
-        "Content-Type":"application/x-www-form-urlencoded; charset=utf-8",
-        "MS-CV":"XOjuYsE7X8zUuM5r.5.2",
+        "Content-Type":"application/json; charset=utf-8",
+        "MS-CV":"XOjuYsE7X8zUuM5r.5.3",
+        "Signature": signature,
         "User-Agent":"XAL Win32 2020.11.20201204.001",
     }
-    const body = payload.toString();
     console.log(body)
-    const res = await fetch('https://login.live.com/oauth20_token.srf', {
+    const res = await fetch('https://sisu.xboxlive.com/authorize', {
         method: 'POST',
         headers,
         body: body
     });
     console.log(res);
-    const rawBody = await res.text(); 
-    console.log('Status:', res.status);
-    console.log('Response Body:', rawBody);
+    const ret = await res.text()
+    if (!res.ok) this.checkTokenError(parseInt(res.headers.get('x-err')), ret)
+
+
 }
+

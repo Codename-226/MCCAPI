@@ -50,6 +50,17 @@ function IsTokenValid(token, log_content) {
 	return valid;
 }
 async function Storage_GetXblToken(){
+    // if use SISU flow, do it this way!!
+    // if (true){
+    //     if (IsTokenValid(XBLToken, "SISU_XBL")) return XBLToken;
+    //     // pass any existing non-valid tokens into the function so we can attempt to refresh them
+    //     const xbl_Token = await getXblToken(XBLToken);
+    //     localStorage.setItem("SISU_XBLToken", JSON.stringify(xbl_Token));
+    //     XBLToken = xbl_Token;
+    //     console.log("recieved SISU_XBL Token");
+    //     return XBLToken;
+    // } 
+
     if (IsTokenValid(XBLToken, "XBL")) return XBLToken;
     // pass any existing non-valid tokens into the function so we can attempt to refresh them
     const xbl_Token = await getXblToken(XBLToken);
@@ -57,6 +68,11 @@ async function Storage_GetXblToken(){
     XBLToken = xbl_Token;
     console.log("recieved XBL Token");
     return XBLToken;
+}
+async function Storage_write_sisuxbl(sisu_xbl_token){
+    localStorage.setItem("XBLToken", JSON.stringify(sisu_xbl_token));
+    XBLToken = sisu_xbl_token;
+    console.log("recieved sisu XBL Token");
 }
 async function Storage_GetUserToken(){
     if (IsTokenValid(UserToken, "USER")) return UserToken;
@@ -76,7 +92,7 @@ async function Storage_GetDeviceToken(){
     console.log("recieved Device Token");
     return DeviceToken;
 }
-async function Storage_GetTitleToken(){
+async function Storage_GetTitleToken(){ // NOTE: apparently doesn't work with sisu xbl token thing
     if (IsTokenValid(TitleToken, "TITLE")) return TitleToken;
 
     const title_token = await getTitleToken(await Storage_GetXblToken(), await Storage_GetDeviceToken());
@@ -90,7 +106,36 @@ async function Storage_GetXSTSToken(){
     await Storage_GetXblToken();
     if (IsTokenValid(XSTSToken, "XSTS")) return XSTSToken;
 
-    const xsts = await getXSTSToken(await Storage_GetUserToken(), await Storage_GetDeviceToken(), await Storage_GetTitleToken());
+
+    async function NewgetXstsToken(userToken, deviceToken) {
+        const url = 'https://xsts.auth.xboxlive.com/xsts/authorize';
+        const body = {
+            RelyingParty: 'http://xboxlive.com', // general user scope
+            TokenType: 'JWT',
+            Properties: {
+            SandboxId: 'RETAIL', // or your sandbox
+            UserTokens: [userToken],
+            DeviceToken: deviceToken
+            }
+        };
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'x-xbl-contract-version': '1'
+            },
+            body: JSON.stringify(body)
+        });
+        console.log(res);
+	    const ret = await res.json()
+        console.log(ret);
+    }
+    const us_t = await Storage_GetUserToken();
+    const de_t = await Storage_GetDeviceToken();
+    const xsts = await NewgetXstsToken(us_t.Token, de_t.Token);
+    
+    //const xsts = await getXSTSToken(await Storage_GetUserToken(), await Storage_GetDeviceToken(), await Storage_GetTitleToken());
     localStorage.setItem("XSTSToken", JSON.stringify(xsts));
     XSTSToken = xsts;
     console.log("recieved XSTS Token");
@@ -101,6 +146,7 @@ async function getXboxToken() {
 	try{
 		await InitXboxCrypto();  // just generates keys and stuff
         Sisu_BeginAuth();
+        //Sisu_AuthUser();
         return;
 		await InitXboxCrypto();  // just generates keys and stuff
 		Storage_LoadTokens();

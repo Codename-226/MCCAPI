@@ -103,6 +103,7 @@ async function sign(url, authorizationToken, payload) {
 
 async function getUserToken(xbl_token) {
 	const preamble = 't='
+	//const preamble = 'd=' // when using sisu thing???
 	const payload = {
 		RelyingParty: 'http://auth.xboxlive.com',
 		TokenType: 'JWT',
