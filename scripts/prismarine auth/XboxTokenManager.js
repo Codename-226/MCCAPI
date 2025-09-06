@@ -150,17 +150,18 @@ async function getXSTSToken(user_token, device_token, title_token) {
 
 async function getDeviceToken() {
 	const payload = {
-		Properties: {
-			AuthMethod: 'ProofOfPossession',
-			Id: `{${nextUUID()}}`,
-			DeviceType: 'Nintendo',
-			SerialNumber: `{${nextUUID()}}`,
-			Version: '0.0.0',
-			ProofKey: xbox_jwk
-		},
-		RelyingParty: 'http://auth.xboxlive.com',
-		TokenType: 'JWT'
+		"RelyingParty":"http://auth.xboxlive.com",
+		"TokenType":"JWT",
+		"Properties":{
+			"AuthMethod":"ProofOfPossession",
+			"Id":`{${nextUUID()}}`,
+			"DeviceType":"Win32",
+			"Version":"10.0.19045",
+			"ProofKey": xbox_jwk
+		}
 	}
+
+	
 	const body = JSON.stringify(payload)
 	const signature = await this.sign('https://device.auth.xboxlive.com/device/authenticate', '', body)
 	const headers = { ...xbox_headers, Signature: signature }

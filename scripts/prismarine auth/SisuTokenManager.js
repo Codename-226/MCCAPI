@@ -72,7 +72,7 @@ async function Sisu_BeginAuth(){
     const headers = {
         "Connection":"Keep-Alive",
         "Content-Type":"application/json; charset=utf-8",
-        "MS-CV":"XOjuYsE7X8zUuM5r.5.0",
+        //"MS-CV":"XOjuYsE7X8zUuM5r.5.0",
         signature,
         "User-Agent":"XAL Win32 2020.11.20201204.001",
         "x-xbl-contract-version":"1",
@@ -96,7 +96,7 @@ async function Sisu_AuthCode(code){
         const headers = {
             "Connection":"Keep-Alive",
             "Content-Type":"application/x-www-form-urlencoded; charset=utf-8",
-            "MS-CV":"XOjuYsE7X8zUuM5r.5.2",
+            //"MS-CV":"XOjuYsE7X8zUuM5r.5.2",
             "User-Agent":"XAL Win32 2020.11.20201204.001",
         }
         const body = payload.toString();
@@ -106,81 +106,18 @@ async function Sisu_AuthCode(code){
             headers,
             body: body
         });
-        const token = await res.json(); 
+        const token = await res.json();
         console.log(token);
-        sisu_xbl_token_100 = {...token, expiresOn: new Date(Date.now() + token.expires_in)};
-        Storage_write_sisuxbl(sisu_xbl_token_100);
+        //sisu_xbl_token_100 = {...token, expiresOn: new Date(Date.now() + token.expires_in)};
+        //Storage_write_sisuxbl(sisu_xbl_token_100);
 
-        Storage_GetXSTSToken();
-        return;
+        await Sisu_AuthUser(token);
 
 
-    const __body = {
-        RelyingParty: 'http://auth.xboxlive.com',
-        TokenType: 'JWT',
-        Properties: {
-            AuthMethod: 'RPS',
-            SiteName: 'user.auth.xboxlive.com',
-            // IMPORTANT: prefix with "d="
-            RpsTicket: `d=${token.access_token}`
-        }
-    };
-
-    const __res = await fetch('https://user.auth.xboxlive.com/user/authenticate', {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'x-xbl-contract-version': '1'
-        },
-        body: JSON.stringify(__body)
-    });
-    console.log(__res)
-    const respot = await __res.text(); 
-    console.log("respot")
-    console.log(respot)
-    
 }
 
 
 
-
-
-  async function doSisuAuth (accessToken, deviceToken) {
-    const payload = {
-      AccessToken: 'd=' + accessToken,
-      AppId: clientId,
-      DeviceToken: deviceToken,
-      Sandbox: 'RETAIL',
-      UseModernGamertag: true,
-      SiteName: 'user.auth.xboxlive.com',
-      RelyingParty: "http://xboxlive.com",
-      ProofKey: xbox_jwk
-    }
-
-    const body = JSON.stringify(payload)
-
-    const signature = await sign('https://sisu.xboxlive.com/authorize', '', body)
-
-    const headers = { Signature: signature }
-
-    const req = await fetch('https://sisu.xboxlive.com/authorize', { method: 'post', headers, body })
-    const ret = await req.text()
-    if (!req.ok) checkTokenError(parseInt(req.headers.get('x-err')), ret)
-
-    console.log('Sisu Auth Response', ret)
-    const xsts = {
-      userXUID: ret.AuthorizationToken.DisplayClaims.xui[0].xid || null,
-      userHash: ret.AuthorizationToken.DisplayClaims.xui[0].uhs,
-      XSTSToken: ret.AuthorizationToken.Token,
-      expiresOn: ret.AuthorizationToken.NotAfter
-    }
-
-    //await this.setCachedToken({ userToken: ret.UserToken, titleToken: ret.TitleToken, [createHash(options.relyingParty)]: xsts })
-
-    console.log('[xbl] xsts', xsts)
-    return xsts
-  }
 
 
 
@@ -188,7 +125,7 @@ async function Sisu_AuthCode(code){
 
 async function Sisu_AuthUser(sisu_xbl_tokens){
     const device_token = await Storage_GetDeviceToken();
-
+    console.log(device_token)
 
     const payload = {
         "AccessToken":'d=' +sisu_xbl_tokens.access_token,
@@ -198,17 +135,17 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
         "UseModernGamertag":true,
         "SiteName":"user.auth.xboxlive.com",
         "RelyingParty":"http://xboxlive.com",
-        "SessionId":SisuSessionID, 
+        "SessionId":SisuSessionID,
         "ProofKey":xbox_jwk
     }
 
-    
+
     const body = JSON.stringify(payload);
 
     const signature = await sign('https://sisu.xboxlive.com/authorize', '', body);
     const headers = {
         "Content-Type":"application/json; charset=utf-8",
-        "MS-CV":"XOjuYsE7X8zUuM5r.5.3",
+        //"MS-CV":"XOjuYsE7X8zUuM5r.5.3",
         "Signature": signature,
         "User-Agent":"XAL Win32 2020.11.20201204.001",
     }
@@ -219,9 +156,9 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
         body: body
     });
     console.log(res);
-    const ret = await res.text()
-    if (!res.ok) this.checkTokenError(parseInt(res.headers.get('x-err')), ret)
-
+    const ret = await res.json()
+    //if (!res.ok) this.checkTokenError(parseInt(res.headers.get('x-err')), ret)
+    console.log(ret)
 
 }
 
