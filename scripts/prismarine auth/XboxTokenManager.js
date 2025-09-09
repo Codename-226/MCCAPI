@@ -6,6 +6,7 @@ async function InitXboxCrypto(){
 	const jwk = await crypto.subtle.exportKey("jwk", xbox_keypair.publicKey);
 	xbox_jwk = { kty:jwk.kty, x:jwk.x, y:jwk.y, crv:jwk.crv, alg: "ES256", use: "sig" };
 }
+InitXboxCrypto()
 const xbox_headers = { 'Cache-Control': 'no-store, must-revalidate, no-cache', 'x-xbl-contract-version': 1 };
 
 function checkTokenError(errorCode, response) {
@@ -21,13 +22,13 @@ function checkTokenError(errorCode, response) {
 		default:         throw new Error(`Xbox Live authentication failed to obtain a XSTS token. XErr: ${errorCode}\n${JSON.stringify(response)}`)
 	}
 }
-async function sign(url, authorizationToken, payload) {
+async function sign(url, authorizationToken, payload, method = 'POST') {
 	// Their backend servers use Windows epoch timestamps, account for that. The server is very picky,
 	// bad percision or wrong epoch may fail the request.
 	const windowsTimestamp = (BigInt((Date.now() / 1000) | 0) + 11644473600n) * 10000000n
 	const pathAndQuery = new URL(url).pathname
 	// Allocate the buffer for signature, TS, path, tokens and payload and NUL termination
-	const allocSize = /* sig */ 5 + /* ts */ 9 + /* POST */ 5 + pathAndQuery.length + 1 + authorizationToken.length + 1 + payload.length + 1
+	const allocSize = /* sig */ 5 + /* ts */ 9 +  /* POST */ method.length + 1 + pathAndQuery.length + 1 + authorizationToken.length + 1 + payload.length + 1
 
 		const buffer = new ArrayBuffer(allocSize);
 		const view = new DataView(buffer);
@@ -58,7 +59,7 @@ async function sign(url, authorizationToken, payload) {
 			view.setUint8(offset, 0); // null terminator
 			offset += 1;
 		}
-		writeStringNT('POST');
+		writeStringNT(method);
 		writeStringNT(pathAndQuery);
 		writeStringNT(authorizationToken);
 		writeStringNT(payload);
@@ -120,9 +121,9 @@ async function getUserToken(xbl_token) {
 	return { ...ret, expiresOn: new Date(ret.NotAfter)};
 }
 
-async function getXSTSToken(user_token, device_token, title_token) {
+async function getXSTSToken(user_token, device_token, title_token, relay='http://xboxlive.com') {
 	const payload = {
-		RelyingParty: 'http://xboxlive.com',
+		RelyingParty: relay,
 		TokenType: 'JWT',
 		Properties: {
 			UserTokens: [user_token.Token],

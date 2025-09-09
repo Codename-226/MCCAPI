@@ -13,7 +13,7 @@
         <script type="text/javascript" src="scripts/prismarine auth/XboxTokenManager.js"></script>
         <script type="text/javascript" src="scripts/prismarine auth/SisuTokenManager.js"></script>
         <script type="text/javascript" src="scripts/prismarine auth/Tokens.js"></script>
-        <script type="text/javascript" src="scripts/main.js"></script>
+        <script type="text/javascript" src="scripts/main.js" defer></script>
     </head>
     <body class="">
         hello world
@@ -21,7 +21,24 @@
         <button onclick="Storage_LogTokens()">Log Tokens</button>
         <button onclick="Storage_WipeTokens()">Clear Tokens</button>
         <br/>
-        <input type="text" id="myInput" placeholder="Enter text here">
-        <button onclick="SisuStep2()">Sisu submit code</button>
+
+        <div id="loading_UI" class="overlay big_text" style="visibility: collapse;">
+            <div>
+                <div id="sisu_code_ui" class="sisu_code_box" style="visibility: collapse;">
+                    <div>
+                        <span class="block">Paste code/url provided by SISU login</span>
+                        <input type="text" id="sisu_code_field" placeholder="Enter text here">
+                        <button onclick="UI_SisuCodeSubmit()">Sisu submit code</button>
+                    </div>
+                </div>
+                <div>
+                    <div  class="spinner"></div>
+                    <div style="display: inline-block;">
+                        <span class="block" id="loading_context_count">Jobs: 0</span>
+                        <span class="block" id="loading_context">placeholder job text</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

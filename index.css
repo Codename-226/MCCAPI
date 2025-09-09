@@ -1,0 +1,58 @@
+body{
+  background-color: #292929;
+  color: white;
+}
+
+.overlay {
+  /* Height & width depends on how you want to reveal the overlay (see JS below) */   
+  height: 100%;
+  width: 100%;
+  position: fixed; /* Stay in place */
+  left: 0;
+  top: 0;
+  background-color: rgba(0,0,0, 0.9); /* Black w/opacity */
+  overflow-x: hidden; /* Disable horizontal scroll */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.block{
+  display: block;
+}
+.big_text{
+  font-size: large;
+  color: white;
+}
+.spinner {
+  display: inline-block;
+  border: 8px solid #2b2b2b; /* Light grey background */
+  border-top: 8px solid #2bff00; /* Blue spinner color */
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+.sisu_code_box{
+  background-color: #1a1a1a;
+  border-radius: 15px;
+  width: 400px;
+  height: 150px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.sisu_context_box{
+  display: flex;
+  justify-content: left;
+  align-items: left;
+}
