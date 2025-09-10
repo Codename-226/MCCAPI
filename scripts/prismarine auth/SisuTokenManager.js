@@ -43,9 +43,16 @@ async function PKCE_generate(){
     PKCE_code_challenge = base64url;
 }
 
-async function Sisu_BeginAuth(){
-
-    // NOTE: if we dont have a refresh token, then  we have to clear all of our tokens and start again
+async function Sisu_BeginAuth(sisu_token){
+    // if we had any expired tokens in storage, try to refresh them, otherwise generate new tokens 
+	if (sisu_token){
+		try {
+			return await refreshTokens(sisu_token);
+		} catch (e) {
+			throw new Error("Failed to refresh XBL access token, likely expired. must clear cache and redo sign in. " + e);
+	}}
+    // NOTE: we have to clear all token caches when we generate a new sisu auth?? especially device token
+    Storage_WipeTokens();
 
     UI_PushJob("beginning SISU auth...")
     const device_token = await Storage_GetDeviceToken();
@@ -70,7 +77,7 @@ async function Sisu_BeginAuth(){
     const headers = {"Connection":"Keep-Alive","Content-Type":"application/json; charset=utf-8",
         "MS-CV":"XOjuYsE7X8zUuM5r.5.0",
         signature,
-        "User-Agent":"XAL Win32 2020.11.20201204.001",
+        //"User-Agent":"XAL Win32 2020.11.20201204.001",
         "x-xbl-contract-version":"1",
     }
     const res = await fetch('https://sisu.xboxlive.com/authenticate', { method: 'post', headers, body })
@@ -119,15 +126,11 @@ async function Sisu_BeginAuth(){
         });
         const token = await res.json();
         console.log(token);
-        //sisu_xbl_token_100 = {...token, expiresOn: new Date(Date.now() + token.expires_in)};
-        //Storage_write_sisuxbl(sisu_xbl_token_100);
+        return {...token, expiresOn: new Date(Date.now() + token.expires_in)};
 
-        return await Sisu_AuthUser(token);
     }
 }
-
-
-// this function just releases the spin lock on 
+// this function just releases the spin lock 
 sisu_abort_code = false;
 sisu_submitted_code = undefined
 function Sisu_SubmitCode(code){
@@ -141,7 +144,6 @@ function Sisu_SubmitCode(code){
 async function Sisu_AuthUser(sisu_xbl_tokens){
     UI_PushJob("reqeusting SISU xsts token...");
     const device_token = await Storage_GetDeviceToken();
-    console.log(device_token)
 
     const payload = {
         "AccessToken":'d=' +sisu_xbl_tokens.access_token,
@@ -169,6 +171,14 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
     });
     const ret = await res.json()
     console.log(ret)
+    // slap expiry date labels on just the base token
+    // but we have to compute which when is the soonest that we have to expire our thing
+    // so double check all our expiry dates to see when abouts is soonest and then slap that date on our main token
+    
+
+    //ret.userToken.expiresOn = new Date(ret.userToken.NotAfter);
+    //ret.userToken.expiresOn = new Date(ret.NotAfter);
+    return ret;
 
 
     // UI_PushJob("checking endpoint entitlements...");
@@ -193,7 +203,7 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
     //     console.log(data);
     // }
 
-    UI_PushJob("applying for 343 & Playfab XSTS...");
+    UI_PushJob("requesting 343 & Playfab XSTS...");
     // get both 343 xsts &  playfab xsts
     _343_xsts = await Storage_GetXSTS343Token();
     playfab_xsts = await Storage_GetXSTSPlayfabToken();
@@ -203,7 +213,7 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
         UI_PushJob("attempting to connect to 343 playfab api...");
         const payload = {'XboxToken':'XBL3.0 x='+xsts_playfab_userhash+';'+xsts_playfab_token, "CreateAccount":true, "TitleId": "EE38"};
         const body = JSON.stringify(payload)
-        const headers = {  'Content-Type': 'application/json', 'Accept':'application/json', 'User-Agent':'cpprestsdk/2.9.0' }
+        const headers = {  'Content-Type': 'application/json', 'Accept':'application/json', /*'User-Agent':'cpprestsdk/2.9.0'*/ }
 
         console.log(body)
         console.log("playfab access check")

@@ -1,9 +1,10 @@
 // run local storage check on session start please
-XBLToken = undefined; // access/refresh token
-UserToken = undefined;
+
+SisuXBLToken = undefined;
+SisuAuthTokens = undefined;
 DeviceToken = undefined;
-TitleToken = undefined;
-XSTSXBLToken = undefined;
+XSTS343Token = undefined
+XSTSPlayfabToken = undefined
 session_has_checked_storage = false;
 function Storage_ParseOrNull(item){
     let temp = localStorage.getItem(item);
@@ -12,26 +13,20 @@ function Storage_ParseOrNull(item){
 }
 function Storage_LoadTokens(){
     if (session_has_checked_storage !== false) return; // no point trying to load this data twice
-    //XBLToken = Storage_ParseOrNull("XBLToken");
-    UserToken = Storage_ParseOrNull("UserToken");
+    SisuXBLToken = Storage_ParseOrNull("SisuXBLToken");
+    SisuAuthTokens = Storage_ParseOrNull("SisuAuthTokens");
     DeviceToken = Storage_ParseOrNull("DeviceToken");
-    TitleToken = Storage_ParseOrNull("TitleToken");
-    XSTSXBLToken = Storage_ParseOrNull("XSTSXBLToken");
     XSTS343Token = Storage_ParseOrNull("XSTS343Token");
     XSTSPlayfabToken = Storage_ParseOrNull("XSTSPlayfabToken");
     session_has_checked_storage = true;
 }
 function Storage_LogTokens(){
-    //console.log("XBL Token");
-    //console.log(Storage_ParseOrNull("XBLToken"));
-    console.log("User Token");
-    console.log(Storage_ParseOrNull("UserToken"));
+    console.log("Sisu XBL Token");
+    console.log(Storage_ParseOrNull("SisuXBLToken"));
+    console.log("Sisu Auth Token");
+    console.log(Storage_ParseOrNull("SisuAuthTokens"));
     console.log("Device Token");
     console.log(Storage_ParseOrNull("DeviceToken"));
-    console.log("Title Token");
-    console.log(Storage_ParseOrNull("TitleToken"));
-    console.log("XSTS XBL Token");
-    console.log(Storage_ParseOrNull("XSTSXBLToken"));
     console.log("XSTS 343 Token");
     console.log(Storage_ParseOrNull("XSTS343Token"));
     console.log("XSTS Playfab Token");
@@ -39,13 +34,11 @@ function Storage_LogTokens(){
 }
 function Storage_WipeTokens(){
     session_has_checked_storage = true;
-    XBLToken = undefined // access/refresh token
-    UserToken = undefined
-    DeviceToken = undefined
-    TitleToken = undefined
-    XSTSXBLToken = undefined
-    XSTS343Token = undefined
-    XSTSPlayfabToken = undefined
+    SisuXBLToken = undefined;
+    SisuAuthTokens = undefined;
+    DeviceToken = undefined;
+    XSTS343Token = undefined;
+    XSTSPlayfabToken = undefined;
     localStorage.clear();
 }
 function IsTokenValid(token, log_content) {
@@ -66,51 +59,48 @@ function IsTokenValid(token, log_content) {
 //     console.log("recieved XBL Token");
 //     return XBLToken;
 // }
-
-async function Storage_GetUserToken(){
-    if (IsTokenValid(UserToken, "USER")) return UserToken;
-
-    // const user_token = await getUserToken(await Storage_GetXblToken());
-    // localStorage.setItem("UserToken", JSON.stringify(user_token));
-    // UserToken = user_token;
-    // console.log("recieved User Token");
-    return UserToken;
+async function Storage_GetSISUXblToken(){
+    if (IsTokenValid(SisuXBLToken, "SISU XBL")) return SisuXBLToken;
+    // pass any existing non-valid tokens into the function so we can attempt to refresh them
+    SisuXBLToken = await Sisu_BeginAuth(SisuXBLToken);
+    localStorage.setItem("SisuXBLToken", JSON.stringify(SisuXBLToken));
+    console.log("recieved SISU xbl Token");
+    return SisuXBLToken;
 }
+async function Storage_GetSISUAuth(){
+    if (IsTokenValid(SisuAuthTokens, "SISU Auth")) return SisuAuthTokens;
+
+    SisuAuthTokens = await Sisu_AuthUser(await Storage_GetSISUXblToken());
+    localStorage.setItem("SisuAuthTokens", JSON.stringify(SisuAuthTokens));
+    console.log("recieved SISU Auth Tokens");
+    return SisuAuthTokens;
+}
+
 async function Storage_GetDeviceToken(){
     if (IsTokenValid(DeviceToken, "DEVICE")) return DeviceToken;
 
-    const device_token = await getDeviceToken();
-    localStorage.setItem("DeviceToken", JSON.stringify(device_token));
-    DeviceToken = device_token;
+    DeviceToken = await getDeviceToken();
+    localStorage.setItem("DeviceToken", JSON.stringify(DeviceToken));
     console.log("recieved Device Token");
     return DeviceToken;
 }
-async function Storage_GetTitleToken(){
-    if (IsTokenValid(TitleToken, "TITLE")) return TitleToken;
 
-    // const title_token = await getTitleToken(await Storage_GetXblToken(), await Storage_GetDeviceToken());
-    // localStorage.setItem("TitleToken", JSON.stringify(title_token));
-    // TitleToken = title_token;
-    // console.log("recieved Title Token");
-    return TitleToken;
-}
-async function Storage_GetXSTSXBLToken(){
-    //await Storage_GetXblToken();
-    if (IsTokenValid(XSTSXBLToken, "XSTS XBL")) return XSTSXBLToken;
+// async function Storage_GetXSTSXBLToken(){
+//     //await Storage_GetXblToken();
+//     if (IsTokenValid(XSTSXBLToken, "XSTS XBL")) return XSTSXBLToken;
     
-    const xsts = await getXSTSXBLToken(await Storage_GetUserToken(), await Storage_GetDeviceToken(), await Storage_GetTitleToken());
-    localStorage.setItem("XSTSXBLToken", JSON.stringify(xsts));
-    XSTSXBLToken = xsts;
-    console.log("recieved XSTS XBL Token");
-    return XSTSXBLToken;
-}
+//     const xsts = await getXSTSXBLToken(await Storage_GetUserToken(), await Storage_GetDeviceToken(), await Storage_GetTitleToken());
+//     localStorage.setItem("XSTSXBLToken", JSON.stringify(xsts));
+//     XSTSXBLToken = xsts;
+//     console.log("recieved XSTS XBL Token");
+//     return XSTSXBLToken;
+// }
 async function Storage_GetXSTS343Token(){
     //await Storage_GetXblToken();
     if (IsTokenValid(XSTS343Token, "XSTS XBL")) return XSTS343Token;
     
-    const xsts = await getXSTSXBLToken(await Storage_GetUserToken(), await Storage_GetDeviceToken(), await Storage_GetTitleToken(), "https://prod.xsts.halowaypoint.com/");
-    localStorage.setItem("XSTS343Token", JSON.stringify(xsts));
-    XSTS343Token = xsts;
+    XSTS343Token = await getXSTSXBLToken(await Storage_GetUserToken(), await Storage_GetDeviceToken(), await Storage_GetTitleToken(), "https://prod.xsts.halowaypoint.com/");
+    localStorage.setItem("XSTS343Token", JSON.stringify(XSTS343Token));
     console.log("recieved XSTS 343 Token");
     return XSTS343Token;
 }
@@ -118,9 +108,8 @@ async function Storage_GetXSTSPlayfabToken(){
     //await Storage_GetXblToken();
     if (IsTokenValid(XSTSPlayfabToken, "XSTS XBL")) return XSTSPlayfabToken;
     
-    const xsts = await getXSTSXBLToken(await Storage_GetUserToken(), await Storage_GetDeviceToken(), await Storage_GetTitleToken(), "rp://playfabapi.com/");
-    localStorage.setItem("XSTSPlayfabToken", JSON.stringify(xsts));
-    XSTSPlayfabToken = xsts;
+    XSTSPlayfabToken = await getXSTSXBLToken(await Storage_GetUserToken(), await Storage_GetDeviceToken(), await Storage_GetTitleToken(), "rp://playfabapi.com/");
+    localStorage.setItem("XSTSPlayfabToken", JSON.stringify(XSTSPlayfabToken));
     console.log("recieved XSTS Playfab Token");
     return XSTSPlayfabToken;
 }
