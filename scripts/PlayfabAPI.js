@@ -90,6 +90,20 @@ ee38.playfabapi.com/Profile/GetProfiles
 - {"Entities" : [{"Id": "BF8D123F4B76B565","Type": "title_player_account"} ]}
 -> returns stats and user customization (set by CustomizationWritePlayFabEntityObject)
 
+ee38.playfabapi.com/Client/GetPlayFabIDsFromXboxLiveIDs
+- Accept:application/json
+- Content-Type:application/json
+- X-Authentication:
+- { "Sandbox" : "RETAIL", "XboxLiveAccountIDs" : [ "2535459205023857" ]}
+-> returns playfab master ID (use with GetTitlePlayersFromMasterPlayerAccountIds) 
+
+ee38.playfabapi.com/Profile/GetTitlePlayersFromMasterPlayerAccountIds
+- Accept:application/json
+- Content-Type:application/json
+- X-EntityToken:
+- { "TitleId" : "EE38", "MasterPlayerAccountIds" : [ "5B6477301A498DB" ]}
+-> returns a playfab player title ID, can use with GetPlayFabUgcItems call
+
 ee38.playfabapi.com/MultiplayerServer/ListQosServersForTitle
 - Content-Type:application/json
 - Accept:application/json
