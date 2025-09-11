@@ -174,10 +174,13 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
     // slap expiry date labels on just the base token
     // but we have to compute which when is the soonest that we have to expire our thing
     // so double check all our expiry dates to see when abouts is soonest and then slap that date on our main token
-    
-
-    //ret.userToken.expiresOn = new Date(ret.userToken.NotAfter);
-    //ret.userToken.expiresOn = new Date(ret.NotAfter);
+    usertoken_expiry = new Date(ret.userToken.NotAfter);
+    soonest_expiry = usertoken_expiry
+    titletoken_expiry = new Date(ret.titleToken.NotAfter);
+    if (titletoken_expiry < usertoken_expiry) soonest_expiry = titletoken_expiry;
+    xststoken_expiry = new Date(ret.AuthorizationToken.NotAfter);
+    if (xststoken_expiry < usertoken_expiry) soonest_expiry = xststoken_expiry;
+    ret.expiresOn = soonest_expiry;
     return ret;
 
 

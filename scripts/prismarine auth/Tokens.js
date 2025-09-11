@@ -68,6 +68,7 @@ async function Storage_GetSISUXblToken(){
     return SisuXBLToken;
 }
 async function Storage_GetSISUAuth(){
+    // double check the expiry on the sisu xbl token anyway
     if (IsTokenValid(SisuAuthTokens, "SISU Auth")) return SisuAuthTokens;
 
     SisuAuthTokens = await Sisu_AuthUser(await Storage_GetSISUXblToken());
@@ -96,19 +97,17 @@ async function Storage_GetDeviceToken(){
 //     return XSTSXBLToken;
 // }
 async function Storage_GetXSTS343Token(){
-    //await Storage_GetXblToken();
     if (IsTokenValid(XSTS343Token, "XSTS XBL")) return XSTS343Token;
     
-    XSTS343Token = await getXSTSXBLToken(await Storage_GetUserToken(), await Storage_GetDeviceToken(), await Storage_GetTitleToken(), "https://prod.xsts.halowaypoint.com/");
+    XSTS343Token = await getXSTSXBLToken((await Storage_GetSISUAuth()).userToken, await Storage_GetDeviceToken(), (await Storage_GetSISUAuth()).titleToken, "https://prod.xsts.halowaypoint.com/");
     localStorage.setItem("XSTS343Token", JSON.stringify(XSTS343Token));
     console.log("recieved XSTS 343 Token");
     return XSTS343Token;
 }
 async function Storage_GetXSTSPlayfabToken(){
-    //await Storage_GetXblToken();
     if (IsTokenValid(XSTSPlayfabToken, "XSTS XBL")) return XSTSPlayfabToken;
     
-    XSTSPlayfabToken = await getXSTSXBLToken(await Storage_GetUserToken(), await Storage_GetDeviceToken(), await Storage_GetTitleToken(), "rp://playfabapi.com/");
+    XSTSPlayfabToken = await getXSTSXBLToken((await Storage_GetSISUAuth()).userToken, await Storage_GetDeviceToken(), (await Storage_GetSISUAuth()).titleToken, "rp://playfabapi.com/");
     localStorage.setItem("XSTSPlayfabToken", JSON.stringify(XSTSPlayfabToken));
     console.log("recieved XSTS Playfab Token");
     return XSTSPlayfabToken;
