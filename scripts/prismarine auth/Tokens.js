@@ -3,8 +3,9 @@
 SisuXBLToken = undefined;
 SisuAuthTokens = undefined;
 DeviceToken = undefined;
-XSTS343Token = undefined
-XSTSPlayfabToken = undefined
+XSTS343Token = undefined;
+XSTSPlayfabToken = undefined;
+PlayfabSessionToken = undefined;
 session_has_checked_storage = false;
 function Storage_ParseOrNull(item){
     let temp = localStorage.getItem(item);
@@ -50,15 +51,7 @@ function IsTokenValid(token, log_content) {
     else console.log(log_content + " token expires in " + (remainingMs/3600000).toFixed(2) + " hours");
 	return valid;
 }
-// async function Storage_GetXblToken(){
-//     if (IsTokenValid(XBLToken, "XBL")) return XBLToken;
-//     // pass any existing non-valid tokens into the function so we can attempt to refresh them
-//     const xbl_Token = await getXblToken(XBLToken);
-//     localStorage.setItem("XBLToken", JSON.stringify(xbl_Token));
-//     XBLToken = xbl_Token;
-//     console.log("recieved XBL Token");
-//     return XBLToken;
-// }
+
 async function Storage_GetSISUXblToken(){
     if (IsTokenValid(SisuXBLToken, "SISU XBL")) return SisuXBLToken;
     // pass any existing non-valid tokens into the function so we can attempt to refresh them
@@ -76,7 +69,6 @@ async function Storage_GetSISUAuth(){
     console.log("recieved SISU Auth Tokens");
     return SisuAuthTokens;
 }
-
 async function Storage_GetDeviceToken(){
     if (IsTokenValid(DeviceToken, "DEVICE")) return DeviceToken;
 
@@ -85,42 +77,36 @@ async function Storage_GetDeviceToken(){
     console.log("recieved Device Token");
     return DeviceToken;
 }
-
-// async function Storage_GetXSTSXBLToken(){
-//     //await Storage_GetXblToken();
-//     if (IsTokenValid(XSTSXBLToken, "XSTS XBL")) return XSTSXBLToken;
-    
-//     const xsts = await getXSTSXBLToken(await Storage_GetUserToken(), await Storage_GetDeviceToken(), await Storage_GetTitleToken());
-//     localStorage.setItem("XSTSXBLToken", JSON.stringify(xsts));
-//     XSTSXBLToken = xsts;
-//     console.log("recieved XSTS XBL Token");
-//     return XSTSXBLToken;
-// }
 async function Storage_GetXSTS343Token(){
-    if (IsTokenValid(XSTS343Token, "XSTS XBL")) return XSTS343Token;
+    if (IsTokenValid(XSTS343Token, "XSTS 343")) return XSTS343Token;
     
-    XSTS343Token = await getXSTSXBLToken((await Storage_GetSISUAuth()).userToken, await Storage_GetDeviceToken(), (await Storage_GetSISUAuth()).titleToken, "https://prod.xsts.halowaypoint.com/");
+    XSTS343Token = await getXSTSToken((await Storage_GetSISUAuth()).UserToken, await Storage_GetDeviceToken(), (await Storage_GetSISUAuth()).TitleToken, "https://prod.xsts.halowaypoint.com/");
     localStorage.setItem("XSTS343Token", JSON.stringify(XSTS343Token));
     console.log("recieved XSTS 343 Token");
     return XSTS343Token;
 }
 async function Storage_GetXSTSPlayfabToken(){
-    if (IsTokenValid(XSTSPlayfabToken, "XSTS XBL")) return XSTSPlayfabToken;
+    if (IsTokenValid(XSTSPlayfabToken, "XSTS Playfab")) return XSTSPlayfabToken;
     
-    XSTSPlayfabToken = await getXSTSXBLToken((await Storage_GetSISUAuth()).userToken, await Storage_GetDeviceToken(), (await Storage_GetSISUAuth()).titleToken, "rp://playfabapi.com/");
+    XSTSPlayfabToken = await getXSTSToken((await Storage_GetSISUAuth()).UserToken, await Storage_GetDeviceToken(), (await Storage_GetSISUAuth()).TitleToken, "rp://playfabapi.com/");
     localStorage.setItem("XSTSPlayfabToken", JSON.stringify(XSTSPlayfabToken));
     console.log("recieved XSTS Playfab Token");
     return XSTSPlayfabToken;
+}
+async function Storage_GetPlayfabSessionToken(){
+    if (IsTokenValid(PlayfabSessionToken, "Playfab Session Token")) return PlayfabSessionToken;
+    
+    PlayfabSessionToken = await Playfab_RequestSessionTicket();
+    localStorage.setItem("PlayfabSessionToken", JSON.stringify(PlayfabSessionToken));
+    console.log("recieved Playfab session Token");
+    return PlayfabSessionToken;
 }
 
 async function getXboxToken() {
 	try{
 	    Storage_LoadTokens();
-        Sisu_BeginAuth();
-        //Sisu_AuthUser();
+        await Storage_GetPlayfabSessionToken();
         return;
-		PlayfabTicket();
-	   //return Storage_GetXSTSXBLToken();
 	}  catch (ex){
 		console.log("Xbox access auth process failed." + ex)
 	}

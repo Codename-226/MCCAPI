@@ -45,6 +45,7 @@ async function PKCE_generate(){
 
 async function Sisu_BeginAuth(sisu_token){
     // if we had any expired tokens in storage, try to refresh them, otherwise generate new tokens 
+    Storage_WipeTokens();
 	if (sisu_token){
 		try {
 			return await refreshTokens(sisu_token);
@@ -52,7 +53,7 @@ async function Sisu_BeginAuth(sisu_token){
 			throw new Error("Failed to refresh XBL access token, likely expired. must clear cache and redo sign in. " + e);
 	}}
     // NOTE: we have to clear all token caches when we generate a new sisu auth?? especially device token
-    Storage_WipeTokens();
+    
 
     UI_PushJob("beginning SISU auth...")
     const device_token = await Storage_GetDeviceToken();
@@ -126,8 +127,7 @@ async function Sisu_BeginAuth(sisu_token){
         });
         const token = await res.json();
         console.log(token);
-        return {...token, expiresOn: new Date(Date.now() + token.expires_in)};
-
+        return {...token, expiresOn: new Date(Date.now() + token.expires_in * 1000)};
     }
 }
 // this function just releases the spin lock 
@@ -174,9 +174,9 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
     // slap expiry date labels on just the base token
     // but we have to compute which when is the soonest that we have to expire our thing
     // so double check all our expiry dates to see when abouts is soonest and then slap that date on our main token
-    usertoken_expiry = new Date(ret.userToken.NotAfter);
+    usertoken_expiry = new Date(ret.UserToken.NotAfter);
     soonest_expiry = usertoken_expiry
-    titletoken_expiry = new Date(ret.titleToken.NotAfter);
+    titletoken_expiry = new Date(ret.TitleToken.NotAfter);
     if (titletoken_expiry < usertoken_expiry) soonest_expiry = titletoken_expiry;
     xststoken_expiry = new Date(ret.AuthorizationToken.NotAfter);
     if (xststoken_expiry < usertoken_expiry) soonest_expiry = xststoken_expiry;
@@ -205,25 +205,5 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
     //     const data = await res.text();
     //     console.log(data);
     // }
-
-    UI_PushJob("requesting 343 & Playfab XSTS...");
-    // get both 343 xsts &  playfab xsts
-    _343_xsts = await Storage_GetXSTS343Token();
-    playfab_xsts = await Storage_GetXSTSPlayfabToken();
-    xsts_playfab_token = playfab_xsts.Token;
-    xsts_playfab_userhash = playfab_xsts.uhs;
-    {
-        UI_PushJob("attempting to connect to 343 playfab api...");
-        const payload = {'XboxToken':'XBL3.0 x='+xsts_playfab_userhash+';'+xsts_playfab_token, "CreateAccount":true, "TitleId": "EE38"};
-        const body = JSON.stringify(payload)
-        const headers = {  'Content-Type': 'application/json', 'Accept':'application/json', /*'User-Agent':'cpprestsdk/2.9.0'*/ }
-
-        console.log(body)
-        console.log("playfab access check")
-        const res = await fetch('https://ee38.playfabapi.com/Client/LoginWithXbox', { method: 'post', headers, body })
-        console.log(res);
-        const data = await res.json();
-        console.log(data);
-    }
 }
 

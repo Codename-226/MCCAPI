@@ -129,21 +129,23 @@ async function getXSTSToken(user_token, device_token, title_token, relay='http:/
 			UserTokens: [user_token.Token],
 			DeviceToken: device_token.Token,
 			TitleToken: title_token.Token,
-			OptionalDisplayClaims: undefined,
-			ProofKey: xbox_jwk,
+			//OptionalDisplayClaims: undefined,
+			//ProofKey: xbox_jwk,
 			SandboxId: 'RETAIL'
 		}
 	}
 	const body = JSON.stringify(payload)
-	const signature = await this.sign('https://xsts.auth.xboxlive.com/xsts/authorize', '', body)
-	const headers = { ...xbox_headers, Signature: signature }
+	//const signature = await this.sign('https://xsts.auth.xboxlive.com/xsts/authorize', '', body)
+	const headers = xbox_headers; //{ ...xbox_headers, Signature: signature }
 	const req = await fetch('https://xsts.auth.xboxlive.com/xsts/authorize', { method: 'post', headers, body })
 	const ret = await req.json()
-	if (!req.ok) this.checkTokenError(ret.XErr, ret)
+	if (!req.ok) this.checkTokenError(ret.XErr, ret);
+	console.log("XSTS token recieved (using weird modified params!!)");
+	console.log(ret);
 	const xsts = {
-		userXUID: ret.DisplayClaims.xui[0].xid || null,
-		userHash: ret.DisplayClaims.xui[0].uhs,
-		XSTSToken: ret.Token,
+		xid: ret.DisplayClaims.xui[0].xid || null,
+		uhs: ret.DisplayClaims.xui[0].uhs,
+		Token: ret.Token,
 		expiresOn: new Date(ret.NotAfter)
 	}
 	return xsts
