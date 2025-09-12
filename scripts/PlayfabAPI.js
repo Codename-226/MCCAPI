@@ -28,14 +28,14 @@ ee38.playfabapi.com/Client/GetStoreItems
 - Content-Type:application/json
 - Accept:application/json
 - X-Authentication:
-- {"StoreId":"Season4","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season8","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season6","CatalogVersion":"SeasonCatalog"}
 - {"StoreId":"Season1","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season5","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season7","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season3","CatalogVersion":"SeasonCatalog"}
 - {"StoreId":"Season2","CatalogVersion":"SeasonCatalog"}
+- {"StoreId":"Season3","CatalogVersion":"SeasonCatalog"}
+- {"StoreId":"Season4","CatalogVersion":"SeasonCatalog"}
+- {"StoreId":"Season5","CatalogVersion":"SeasonCatalog"}
+- {"StoreId":"Season6","CatalogVersion":"SeasonCatalog"}
+- {"StoreId":"Season7","CatalogVersion":"SeasonCatalog"}
+- {"StoreId":"Season8","CatalogVersion":"SeasonCatalog"}
 - {"StoreId":"FreemiumStore","CatalogVersion":"SeasonCatalog"}
 
 ee38.playfabapi.com/Client/GetCatalogItems
@@ -109,9 +109,53 @@ ee38.playfabapi.com/MultiplayerServer/ListQosServersForTitle
 - Accept:application/json
 - X-Authentication
 - {"IncludeAllRegions":"false"}
--> returns region server list
+-> returns region server list (useless)
+
+mcc-production.azurefd.net/api/ProgressionPurchaseAndUnlockContainer
+- Content-Type:application/json
+- X-343-Authorization-Spartan:
+- x-auth-token:
+- {"StoreId":"Season1","StoreItemId":"S1T02","EPlayFabItemPurchaseType":"UnlockableContainer"}
+- {"StoreId":"Season1","StoreItemId":"S1T03","EPlayFabItemPurchaseType":"UnlockableContainer"}
+-> returns basically a virtual receipt
+
+mcc-production.azurefd.net/api/ProgressionPurchaseFreemiumStoreItem
+- Content-Type:application/json
+- X-343-Authorization-Spartan:
+- x-auth-token:
+- {"StoreId":"FreemiumStore","StoreItemId":"POSEBUNDLE_ONPATROL","EPlayFabItemPurchaseType":"FreemiumStoreItem","ClearanceId":""}
+- {"StoreId":"FreemiumStore","StoreItemId":"CUSTOMIZATION_HR_Helmet_Mariner_MISTERCHIEF","EPlayFabItemPurchaseType":"FreemiumStoreItem","ClearanceId":""}
+-> same return as the other
+
+GET halostats.svc.halowaypoint.com/hmcc/players/xuid(2535430211370706)/decks
+- Accept:Application/json
+- X-343-Authorization-Spartan:
+-> returns all challenges & their progress
+
+PATCH halostats.svc.halowaypoint.com/hmcc/players/xuid(2535430211370706)/decks/Player_Deck_8584434784854775807_979f36de-ea11-5e2c-285c-5475dfb988b8/challenges/0b4b07ac-9b46-43af-b761-320adc730c89
+- Accept:Application/json
+- Content-Type:application/json
+- X-343-Authorization-Spartan:
+- { "Progress": 3, }
+-> returns challenge info with updated progress and completed status
+
+mcc-production.azurefd.net/api/ProgressionCachePlayerXPToPlayFab
+- Accept:application/json, Application/json
+- X-343-Authorization-Spartan:
+- x-auth-token:
+-> returns rank and XP data (although there should be a better API for this, including getting other players ranks)
+
+GET gamecms-hacs.svc.halowaypoint.com/hmcc/progression/file/game/seasons_v2.json?flight=
+- Accept:Application/json
+- Accept-Language:en-US
+- X-343-Authorization-Spartan:
+-> returns {"Seasons":[{"SeasonId":"S1","PlayFabCatalogId":"SeasonCatalog","PlayFabStoreId":"Season1","Season":1,"StartDateUtc":"2019-12-03T00:00:00Z","SeasonName":"$SEASON_1_NAME","SeasonImage":"SeasonIcon_01"},{"SeasonId":"S2","PlayFabCatalogId":"SeasonCatalog","PlayFabStoreId":"Season2","Season":2,"StartDateUtc":"2020-07-16T00:00:00Z","SeasonName":"$SEASON_2_NAME","SeasonImage":"SeasonIcon_02"},{"SeasonId":"S3","PlayFabCatalogId":"SeasonCatalog","PlayFabStoreId":"Season3","Season":3,"StartDateUtc":"2020-09-22T00:00:00Z","SeasonName":"$SEASON_3_NAME","SeasonImage":"SeasonIcon_03"},{"SeasonId":"S4","PlayFabCatalogId":"SeasonCatalog","PlayFabStoreId":"Season4","Season":4,"StartDateUtc":"2020-10-08T00:00:00Z","SeasonName":"$SEASON_4_NAME","SeasonImage":"SeasonIcon_04"},{"SeasonId":"S5","PlayFabCatalogId":"SeasonCatalog","PlayFabStoreId":"Season5","Season":5,"StartDateUtc":"2020-11-23T00:00:00Z","SeasonName":"$SEASON_5_NAME","SeasonImage":"SeasonIcon_05"},{"SeasonId":"S6","PlayFabCatalogId":"SeasonCatalog","PlayFabStoreId":"Season6","Season":6,"StartDateUtc":"2021-02-23T00:00:00Z","SeasonName":"$SEASON_6_NAME","SeasonImage":"SeasonIcon_06"},{"SeasonId":"S7","PlayFabCatalogId":"SeasonCatalog","PlayFabStoreId":"Season7","Season":7,"StartDateUtc":"2021-05-27T00:00:00Z","SeasonName":"$SEASON_7_NAME","SeasonImage":"SeasonIcon_07"},{"SeasonId":"S8","PlayFabCatalogId":"SeasonCatalog","PlayFabStoreId":"Season8","Season":8,"StartDateUtc":"2021-09-08T00:00:00Z","SeasonName":"$SEASON_8_NAME","SeasonImage":"SeasonIcon_08"}]}
 
 
+
+-- TO GET:
+- get player rank/xp
+- get player nameplate and other customizations
 
 
 */
