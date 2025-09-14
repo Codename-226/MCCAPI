@@ -6,6 +6,7 @@ DeviceToken = undefined;
 XSTS343Token = undefined;
 XSTSPlayfabToken = undefined;
 PlayfabSessionToken = undefined;
+SpartanToken = undefined;
 session_has_checked_storage = false;
 function Storage_ParseOrNull(item){
     let temp = localStorage.getItem(item);
@@ -19,8 +20,12 @@ function Storage_LoadTokens(){
     DeviceToken = Storage_ParseOrNull("DeviceToken");
     XSTS343Token = Storage_ParseOrNull("XSTS343Token");
     XSTSPlayfabToken = Storage_ParseOrNull("XSTSPlayfabToken");
+    PlayfabSessionToken = Storage_ParseOrNull("PlayfabSessionToken");
+    SpartanToken = Storage_ParseOrNull("SpartanToken");
     session_has_checked_storage = true;
 }
+Storage_LoadTokens();
+
 function Storage_LogTokens(){
     console.log("Sisu XBL Token");
     console.log(Storage_ParseOrNull("SisuXBLToken"));
@@ -32,6 +37,10 @@ function Storage_LogTokens(){
     console.log(Storage_ParseOrNull("XSTS343Token"));
     console.log("XSTS Playfab Token");
     console.log(Storage_ParseOrNull("XSTSPlayfabToken"));
+    console.log("Playfab Session Token");
+    console.log(Storage_ParseOrNull("PlayfabSessionToken"));
+    console.log("Spartan Token");
+    console.log(Storage_ParseOrNull("SpartanToken"));
 }
 function Storage_WipeTokens(){
     session_has_checked_storage = true;
@@ -40,15 +49,16 @@ function Storage_WipeTokens(){
     DeviceToken = undefined;
     XSTS343Token = undefined;
     XSTSPlayfabToken = undefined;
+    PlayfabSessionToken = undefined;
+    SpartanToken = undefined;
     localStorage.clear();
 }
 function IsTokenValid(token, log_content) {
     if (!token) return false;
-    console.log(log_content + " token was found in local storage!!1")
 	const remainingMs = new Date(token.expiresOn) - Date.now();
 	const valid = remainingMs > 1000;
-    if (!valid) console.log(log_content + " token was expired.");
-    else console.log(log_content + " token expires in " + (remainingMs/3600000).toFixed(2) + " hours");
+    if (!valid) console.log(log_content + " found in local storage! token was expired.");
+    else console.log(log_content + " found in local storage! token expires in " + (remainingMs/3600000).toFixed(2) + " hours");
 	return valid;
 }
 
@@ -101,11 +111,46 @@ async function Storage_GetPlayfabSessionToken(){
     console.log("recieved Playfab session Token");
     return PlayfabSessionToken;
 }
+async function Storage_GetSpartanToken(){
+    if (IsTokenValid(SpartanToken, "Spartan Token")) return SpartanToken;
+    
+    SpartanToken = await Waypoint_RequestSpartanToken();
+    localStorage.setItem("SpartanToken", JSON.stringify(SpartanToken));
+    console.log("recieved Playfab session Token");
+    return SpartanToken;
+}
 
 async function getXboxToken() {
 	try{
-	    Storage_LoadTokens();
+        // putting these here so any console log outputs are out of the way
+        await Storage_GetSpartanToken();
         await Storage_GetPlayfabSessionToken();
+        //await API_Get_CGBList();
+
+        // console.log(await API_Get_Challenges());
+        // console.log(await API_Update_Challenges("", "", 10));
+        // console.log(await API_Update_Challenges("", "", 90));
+        // console.log(await API_Get_Challenges());
+
+        // await API_Get_MOTD();
+        //await Waypoint_RequestClearance();
+        //await API_AccessResource(); // deprecated ??
+
+        //console.log("Gamergotten's XUID: " + await API_Get_XUID("Gamergotten"));
+        //console.log("Invalid GT XUID: " + await API_Get_XUID("sdf7bmas92ds91")); // returns undefined
+
+        //console.log(await API_Get_PlayfabID(2535459205023857)); // gamergottens XUID
+        //console.log(await API_Get_LocalPlayfabID());
+
+        // console.log("local user's stats")
+        // console.log(await API_Get_PlayerDetails(await API_Get_LocalPlayfabID()));
+        // console.log("Gamergotten's stats")
+        // console.log(await API_Get_PlayerDetails(await API_Get_PlayfabID(2535459205023857)));
+
+        //console.log(await API_Get_PlayerFileshare(await API_Get_PlayfabID(2535459205023857)));
+        //console.log(await API_Get_FileshareDetails("b47471ff-d42a-450e-858e-d4974ce7a7be"));
+
+        console.log(await API_Get_ProfileFromXUID(2535459205023857));
         return;
 	}  catch (ex){
 		console.log("Xbox access auth process failed." + ex)

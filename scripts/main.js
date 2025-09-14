@@ -45,8 +45,7 @@ function UI_SisuCodeSubmit() {
 
 async function PrismarineXBLLogin() {
 	UI_PushJob("begining XBL login routine...");
-	const xsts = await getXboxToken();
-	console.log(xsts);
+	await getXboxToken();
 	UI_PopJobs();
 }
 

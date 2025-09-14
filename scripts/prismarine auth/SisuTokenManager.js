@@ -162,7 +162,6 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
         "Content-Type":"application/json; charset=utf-8",
         "MS-CV":"XOjuYsE7X8zUuM5r.5.3",
         "Signature": signature,
-        //"User-Agent":"XAL Win32 2020.11.20201204.001",
     }
     const res = await fetch('https://sisu.xboxlive.com/authorize', {
         method: 'POST',
@@ -171,6 +170,11 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
     });
     const ret = await res.json()
     console.log(ret)
+    // make xsts token thing a bit easier to use with functions
+    ret.AuthorizationToken.uhs = ret.AuthorizationToken.DisplayClaims.xui[0].uhs;
+    ret.AuthorizationToken.xid = ret.AuthorizationToken.DisplayClaims.xui[0].xid;
+
+
     // slap expiry date labels on just the base token
     // but we have to compute which when is the soonest that we have to expire our thing
     // so double check all our expiry dates to see when abouts is soonest and then slap that date on our main token

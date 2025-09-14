@@ -23,3 +23,18 @@ async function generateECKeyPair() {
 	return keyPair;
 }
 
+function decodeAndDecompress(base64String) {
+  // Step 1: Decode Base64 to binary
+  const binaryString = atob(base64String);
+  const binaryData = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    binaryData[i] = binaryString.charCodeAt(i);
+  }
+
+  // Step 2: Decompress using zlib (pako)
+  const decompressedData = pako.inflate(binaryData);
+
+  // Step 3: Convert Uint8Array to string
+  const decodedText = new TextDecoder('utf-8').decode(decompressedData);
+  return decodedText;
+}
