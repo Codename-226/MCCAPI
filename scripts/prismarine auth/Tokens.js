@@ -25,22 +25,21 @@ function Storage_LoadTokens(){
     session_has_checked_storage = true;
 }
 Storage_LoadTokens();
-
+function Storage_LogToken(token_name){
+    const token = Storage_ParseOrNull(token_name);
+    if (token){
+        IsTokenValid(token, token_name);
+        console.log(token);
+    } else console.log(token_name + " is null");
+}
 function Storage_LogTokens(){
-    console.log("Sisu XBL Token");
-    console.log(Storage_ParseOrNull("SisuXBLToken"));
-    console.log("Sisu Auth Token");
-    console.log(Storage_ParseOrNull("SisuAuthTokens"));
-    console.log("Device Token");
-    console.log(Storage_ParseOrNull("DeviceToken"));
-    console.log("XSTS 343 Token");
-    console.log(Storage_ParseOrNull("XSTS343Token"));
-    console.log("XSTS Playfab Token");
-    console.log(Storage_ParseOrNull("XSTSPlayfabToken"));
-    console.log("Playfab Session Token");
-    console.log(Storage_ParseOrNull("PlayfabSessionToken"));
-    console.log("Spartan Token");
-    console.log(Storage_ParseOrNull("SpartanToken"));
+    Storage_LogToken("SisuXBLToken");
+    Storage_LogToken("SisuAuthTokens");
+    Storage_LogToken("DeviceToken");
+    Storage_LogToken("XSTS343Token");
+    Storage_LogToken("XSTSPlayfabToken");
+    Storage_LogToken("PlayfabSessionToken");
+    Storage_LogToken("SpartanToken");
 }
 function Storage_WipeTokens(){
     session_has_checked_storage = true;
@@ -150,7 +149,7 @@ async function getXboxToken() {
         //console.log(await API_Get_PlayerFileshare(await API_Get_PlayfabID(2535459205023857)));
         //console.log(await API_Get_FileshareDetails("b47471ff-d42a-450e-858e-d4974ce7a7be"));
 
-        console.log(await API_Get_ProfileFromXUID(2535459205023857));
+        //console.log(await API_Get_ProfileFromXUID(2535459205023857)); //returns gamertag + profile picture url + gamerscore
         return;
 	}  catch (ex){
 		console.log("Xbox access auth process failed." + ex)

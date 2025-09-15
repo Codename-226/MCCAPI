@@ -23,6 +23,7 @@ async function refreshTokens(xbl_token) {
 	console.log(codeRequest);
 	const token = await fetch("https://login.live.com/oauth20_token.srf", codeRequest).then(checkStatus);
 
+    token.access_token = "t=" + token.access_token; // assign preamble
 	return {...token, expiresOn: new Date(Date.now() + (token.expires_in * 1000))};
 }
 

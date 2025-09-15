@@ -102,25 +102,6 @@ async function sign(url, authorizationToken, payload, method = 'POST') {
 	return _arrayBufferToBase64(header_buffer);
 }
 
-// async function getUserToken(xbl_token) {
-// 	const preamble = 't='
-// 	//const preamble = 'd=' // when using sisu thing???
-// 	const payload = {
-// 		RelyingParty: 'http://auth.xboxlive.com',
-// 		TokenType: 'JWT',
-// 		Properties: {
-// 			AuthMethod: 'RPS',
-// 			SiteName: 'user.auth.xboxlive.com',
-// 			RpsTicket: `${preamble}${xbl_token.access_token}`
-// 		}
-// 	}
-// 	const body = JSON.stringify(payload)
-// 	const signature = await this.sign('https://user.auth.xboxlive.com/user/authenticate', '', body);
-// 	const headers = { ...xbox_headers, signature, 'Content-Type': 'application/json', accept: 'application/json', 'x-xbl-contract-version': '2' }
-// 	const ret = await fetch('https://user.auth.xboxlive.com/user/authenticate', { method: 'post', headers, body }).then(checkStatus)
-// 	return { ...ret, expiresOn: new Date(ret.NotAfter)};
-// }
-
 async function getXSTSToken(user_token, device_token, title_token, relay='http://xboxlive.com') {
 	const payload = {
 		RelyingParty: relay,
@@ -171,23 +152,3 @@ async function getDeviceToken() {
 	const ret = await fetch('https://device.auth.xboxlive.com/device/authenticate', { method: 'post', headers, body }).then(checkStatus)
 	return { ...ret, expiresOn: new Date(ret.NotAfter)};
 }
-
-// async function getTitleToken(xbl_token, deviceToken) {
-// 	const payload = {
-// 		Properties: {
-// 			AuthMethod: 'RPS',
-// 			DeviceToken: deviceToken.Token,
-// 			RpsTicket: 't=' + xbl_token.access_token,
-// 			SiteName: 'user.auth.xboxlive.com',
-// 			ProofKey: xbox_jwk
-// 		},
-// 		RelyingParty: 'http://auth.xboxlive.com',
-// 		TokenType: 'JWT'
-// 	}
-// 	const body = JSON.stringify(payload)
-// 	const signature = await this.sign('https://title.auth.xboxlive.com/title/authenticate', '', body)
-// 	const headers = { ...xbox_headers, Signature: signature }
-// 	const ret = await fetch('https://title.auth.xboxlive.com/title/authenticate', { method: 'post', headers, body }).then(checkStatus)
-// 	return { ...ret, expiresOn: new Date(ret.NotAfter)};
-// }
-
