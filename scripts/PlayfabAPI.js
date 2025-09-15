@@ -142,7 +142,7 @@ async function API_Get_FileshareDetails(fileshare_item_id){ // this literally ju
     return (await res.json()).data.Item;
 }
 
-// NOTE WORKING
+// NOTE: if this is failing, then either no profile or you need to refresh your basic sisu accesscode/refresh token
 async function API_Get_ProfileFromXUID(xuid){
     const sisu_auth = await Storage_GetSISUAuth();
     UI_PushJob("getting profile from XUID...");
@@ -154,54 +154,64 @@ async function API_Get_ProfileFromXUID(xuid){
 }
 
 
+
+async function API_Get_Unlocks(){
+    const playfab_auth = await Storage_GetPlayfabSessionToken();
+    UI_PushJob("requesting player unlocks...");
+    const headers = {'Accept':'application/json', 'Content-Type':'application/json', 'X-Authentication':playfab_auth.SessionTicket}
+    const res = await fetch('https://ee38.playfabapi.com/Client/GetUserInventory', { method: 'post', headers })
+    return (await res.json()).data;
+}
+async function API_Get_UnlockDatabase(){
+    const playfab_auth = await Storage_GetPlayfabSessionToken();
+    UI_PushJob("requesting all unlockables...");
+    const body = JSON.stringify({"CatalogVersion":"SeasonCatalog"});
+    const headers = {'Accept':'application/json', 'Content-Type':'application/json', 'X-Authentication':playfab_auth.SessionTicket}
+    const res = await fetch('https://ee38.playfabapi.com/Client/GetCatalogItems', { method: 'post', headers, body })
+    return (await res.json()).data.Catalog;
+}
+// input stores: "Season1", "Season2", "Season3", "Season4", "Season5", "Season6", "Season7", "Season8", "FreemiumStore"
+async function API_Get_StoreDatabase(store_id){
+    const playfab_auth = await Storage_GetPlayfabSessionToken();
+    UI_PushJob("requesting purchaseable store unlocks...");
+    const body = JSON.stringify({"StoreId":store_id,"CatalogVersion":"SeasonCatalog"});
+    const headers = {'Accept':'application/json', 'Content-Type':'application/json', 'X-Authentication':playfab_auth.SessionTicket}
+    const res = await fetch('https://ee38.playfabapi.com/Client/GetStoreItems', { method: 'post', headers, body })
+    return (await res.json()).data;
+}
+// returns status 500 (internal server error) when:
+// - purchasing already owned item
+// - purchasing item that you dont have permission to unlock (must own all previous items in season)
+// - mismatch betwen item id and store id (must indicate correct store ID)
+// - purchasing freemium items
+async function API_PurchaseSeasonal(store_id, item_id){
+    const playfab_auth = await Storage_GetPlayfabSessionToken();
+    const spartan_token = await Storage_GetSpartanToken();
+    UI_PushJob("purchasing seasonal item...");
+    const body = JSON.stringify({"StoreId":store_id,"StoreItemId":item_id,"EPlayFabItemPurchaseType":"UnlockableContainer"});
+    const headers = {'Content-Type':'application/json', 'x-auth-token':playfab_auth.SessionTicket, 'X-343-Authorization-Spartan':spartan_token.SpartanToken}
+    const res = await fetch('https://mcc-production.azurefd.net/api/ProgressionPurchaseAndUnlockContainer', { method: 'post', headers, body })
+    return (await res.json());
+}
+// returns status 500 (internal server error) when:
+// - purchasing already owned item
+// - purchasing item not on the freemium store database
+// - purchasing an item listed on the freemium database thats actually a part of a bundle IE. POSEBUNDLE_PEACE succeeds, but CUSTOMIZATION_H4_POSE_PEACESIGN fails
+// - purchasing an item thats not in the current rotation (NOTE: need an api to even figure out whats for sale??)
+async function API_PurchaseFreemium(item_id){
+    const playfab_auth = await Storage_GetPlayfabSessionToken();
+    const spartan_token = await Storage_GetSpartanToken();
+    UI_PushJob("purchasing freemium item...");
+    const body = JSON.stringify({"StoreId":"FreemiumStore","StoreItemId":item_id,"EPlayFabItemPurchaseType":"FreemiumStoreItem","ClearanceId":await Waypoint_RequestClearance()});
+    const headers = {'Content-Type':'application/json', 'x-auth-token':playfab_auth.SessionTicket, 'X-343-Authorization-Spartan':spartan_token.SpartanToken}
+    const res = await fetch('https://mcc-production.azurefd.net/api/ProgressionPurchaseFreemiumStoreItem', { method: 'post', headers, body })
+    return (await res.json());
+}
+
+
+
 /*
 
-////////> XUID TO GAMER DETAILS
-
-
-
-ee38.playfabapi.com/Client/GetUserInventory
-- Content-Type:application/json
-- Accept:application/json
-- X-Authentication: (playfab session ticket)
--> returns all unlocked customization items
-
-ee38.playfabapi.com/Client/GetCatalogItems
-- Content-Type:application/json
-- Accept:application/json
-- X-Authentication: (playfab session ticket)
-- {"CatalogVersion":"SeasonCatalog"}
--> returns every single purchaseable item with extended details
-
-ee38.playfabapi.com/Client/GetStoreItems
-- Content-Type:application/json
-- Accept:application/json
-- X-Authentication: (playfab session ticket)
-- {"StoreId":"Season1","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season2","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season3","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season4","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season5","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season6","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season7","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"Season8","CatalogVersion":"SeasonCatalog"}
-- {"StoreId":"FreemiumStore","CatalogVersion":"SeasonCatalog"}
-
-mcc-production.azurefd.net/api/ProgressionPurchaseAndUnlockContainer
-- Content-Type:application/json
-- X-343-Authorization-Spartan:
-- x-auth-token: (playfab session ticket)
-- {"StoreId":"Season1","StoreItemId":"S1T02","EPlayFabItemPurchaseType":"UnlockableContainer"}
-- {"StoreId":"Season1","StoreItemId":"S1T03","EPlayFabItemPurchaseType":"UnlockableContainer"}
--> returns basically a virtual receipt
-
-mcc-production.azurefd.net/api/ProgressionPurchaseFreemiumStoreItem
-- Content-Type:application/json
-- X-343-Authorization-Spartan:
-- x-auth-token: (playfab session ticket)
-- {"StoreId":"FreemiumStore","StoreItemId":"POSEBUNDLE_ONPATROL","EPlayFabItemPurchaseType":"FreemiumStoreItem","ClearanceId":""}
-- {"StoreId":"FreemiumStore","StoreItemId":"CUSTOMIZATION_HR_Helmet_Mariner_MISTERCHIEF","EPlayFabItemPurchaseType":"FreemiumStoreItem","ClearanceId":""}
--> same return as the other
 
 
 
@@ -245,8 +255,3 @@ to get:
 upload file to fileshare
 
 */
-
-
-async function Playfab_(){
-
-}

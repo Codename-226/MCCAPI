@@ -135,6 +135,7 @@ async function getXboxToken() {
         //await Waypoint_RequestClearance();
         //await API_AccessResource(); // deprecated ??
 
+        // NOTE: worked when i wrote this code. currently not working.???
         //console.log("Gamergotten's XUID: " + await API_Get_XUID("Gamergotten"));
         //console.log("Invalid GT XUID: " + await API_Get_XUID("sdf7bmas92ds91")); // returns undefined
 
@@ -150,6 +151,24 @@ async function getXboxToken() {
         //console.log(await API_Get_FileshareDetails("b47471ff-d42a-450e-858e-d4974ce7a7be"));
 
         //console.log(await API_Get_ProfileFromXUID(2535459205023857)); //returns gamertag + profile picture url + gamerscore
+
+        //console.log("player inventory");
+        //console.log(await API_Get_Unlocks());
+        //console.log("all unlocks");
+        //console.log(await API_Get_UnlockDatabase());
+
+        // console.log("season 1 purchaseables");
+        // console.log(await API_Get_StoreDatabase("Season1")); // etc... through to "Season8"
+        //console.log("the exchange purchaseables");
+        //console.log(await API_Get_StoreDatabase("FreemiumStore"));
+
+        //console.log("purchase receipt");
+        //console.log(await API_PurchaseSeasonal("Season2", "S2T02"));
+
+        //console.log("purchase receipt");
+        //console.log(await API_PurchaseFreemium("POSEBUNDLE_RIFLESALUTE"));
+        //console.log(await API_PurchaseFreemium("CUSTOMIZATION_H3S6_VS_MONGOOSE_BLACKRHINE"));
+
         return;
 	}  catch (ex){
 		console.log("Xbox access auth process failed." + ex)
