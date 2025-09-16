@@ -61,8 +61,6 @@ async function API_Get_Challenges(){
     // NOTE: xuid must match owner of spartan token !!!! so we cant lookup other players challenges
     const res = await fetch('https://halostats.svc.halowaypoint.com/hmcc/players/xuid('+ sisu_auth.AuthorizationToken.xid + ')/decks', { method: 'get', headers })
     const ret = await res.json();
-
-
     async function convert_challenge_url(object){
         try{
         target_url = 'https://gamecms-hacs.svc.halowaypoint.com/hmcc/progression/file/' + object.Path + "?flight=" + clearance;
@@ -85,7 +83,6 @@ async function API_Get_Challenges(){
         for (let j = 0; j < curr_deck.CompletedChallenges.length; j++)
             fetch_list.push(makeStatusAware(curr_deck.CompletedChallenges[j]));
     }
-
     let total_fetches = fetch_list.length;
     while (fetch_list.length > 0){
         UI_PushJob("awaiting challenge details return (" + (total_fetches-fetch_list.length)  + "/" + total_fetches + ")");
@@ -117,16 +114,6 @@ async function API_Get_MOTD(){
     const vers_motd = await vers_res.json();
     return {...vers_motd, 'motd_data':motd};
 }
-
-// async function API_AccessResource(){
-//     const spartan_token = await Storage_GetSpartanToken();
-//     UI_PushJob("requesting resource...");
-//     const headers = {'Accept':'application/json', 'Accept-Language':'en-US', 'X-343-Authorization-Spartan':spartan_token.SpartanToken}
-//     const res = await fetch('https://gamecms-hacs.svc.halowaypoint.com/hmcc/game/challenges/ClientChallengeDefinitions/WeeklyPVE/MissionCompletedDifficultyMultiplierChallenge.json?flight=', { method: 'get', headers })
-//     const doodo=  await res.json();
-//     console.log(doodo)
-//     return doodo;
-// }
 
 async function API_Get_XUID(gamertag){
     const sisu_auth = await Storage_GetSISUAuth();

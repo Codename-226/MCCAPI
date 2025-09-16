@@ -56,3 +56,23 @@ body{
   justify-content: left;
   align-items: left;
 }
+
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full viewport height */
+}
+
+.output_container{
+    flex-grow: 1; /* This fills the remaining vertical space */
+  display: flex;
+  align-items: stretch;
+  padding: 1rem;
+}
+.output_field{
+    flex-grow: 1;
+  width: 100%;
+  overflow-x: hidden;       /* Hide horizontal scroll */
+  overflow-y: auto;         /* Enable vertical scroll */
+}
