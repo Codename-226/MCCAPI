@@ -1,0 +1,702 @@
+const t = {
+    "Authorities": {
+        "notification": {
+            "AuthorityId": "notification",
+            "Scheme": 2,
+            "Hostname": "notification.svc.halowaypoint.com",
+            "Port": 443,
+            "AuthenticationMethods": [15]
+        },
+        "entitlements": {
+            "AuthorityId": "entitlements",
+            "Scheme": 2,
+            "Hostname": "entitlements.svc.halowaypoint.com",
+            "Port": 443,
+            "AuthenticationMethods": [1,10]
+        },
+        "gamecms-hacs": {
+            "AuthorityId": "gamecms-hacs",
+            "Scheme": 2,
+            "Hostname": "gamecms-hacs.svc.halowaypoint.com",
+            "Port": 443,
+            "AuthenticationMethods": [1,10]
+        },
+        "halostats": {
+            "AuthorityId": "halostats",
+            "Scheme": 2,
+            "Hostname": "halostats.svc.halowaypoint.com",
+            "Port": 443,
+            "AuthenticationMethods": [15]
+        },
+        "lobbyamqp": {
+            "AuthorityId": "lobbyamqp",
+            "Scheme": 8,
+            "Hostname": "lobby-hi.svc.halowaypoint.com",
+            "Port": 443,
+            "AuthenticationMethods": [15]
+        },
+        "notificationamqp": {
+            "AuthorityId": "notificationamqp",
+            "Scheme": 8,
+            "Hostname": "notification.svc.halowaypoint.com",
+            "Port": 443,
+            "AuthenticationMethods": [15]
+        },
+        "playfab": {
+            "AuthorityId": "playfab",
+            "Scheme": 2,
+            "Hostname": "{PlayFabTitleId}.playfabapi.com",
+            "Port": 443,
+            "AuthenticationMethods": [16]
+        },
+        "mccazurefunctions-pfsessionticket": {
+            "AuthorityId": "mccazurefunctions-pfsessionticket",
+            "Scheme": 2,
+            "Hostname": "mcc-production.azurefd.net",
+            "Port": 443,
+            "AuthenticationMethods": [16]
+        },
+        "playfabxsts": {
+            "AuthorityId": "playfabxsts",
+            "Scheme": 2,
+            "Hostname": "{PlayFabTitleId}.playfabapi.com",
+            "Port": 443,
+            "AuthenticationMethods": [18]
+        },
+        "mccazurefunctions": {
+            "AuthorityId": "mccazurefunctions",
+            "Scheme": 2,
+            "Hostname": "mcc-production.azurefd.net",
+            "Port": 443,
+            "AuthenticationMethods": [0]
+        },
+        "settings_st4": {
+            "AuthorityId": "settings_st4",
+            "Scheme": 2,
+            "Hostname": "settings.svc.halowaypoint.com",
+            "Port": 443,
+            "AuthenticationMethods": [15]
+        },
+        "banprocessor": {
+            "AuthorityId": "banprocessor",
+            "Scheme": 2,
+            "Hostname": "banprocessor.svc.halowaypoint.com",
+            "Port": 443,
+            "AuthenticationMethods": [1]
+        },
+        "lobby": {
+            "AuthorityId": "lobby",
+            "Scheme": 2,
+            "Hostname": "lobby-hi.svc.halowaypoint.com",
+            "Port": 443,
+            "AuthenticationMethods": [1,10]
+        },
+        "onestore": {
+            "AuthorityId": "onestore",
+            "Scheme": 2,
+            "Hostname": "collections.mp.microsoft.com",
+            "Port": 443,
+            "AuthenticationMethods": [0]
+        }
+    },
+    "RetryPolicies": {
+        "exponentialretry": {
+            "RetryPolicyId": "exponentialretry",
+            "TimeoutMs": 10000,
+            "RetryOptions": {
+                "MaxRetryCount": 1,
+                "RetryDelayMs": 75,
+                "RetryGrowth": 1.5,
+                "RetryJitterMs": 20,
+                "RetryIfNotFound": false
+            }
+        },
+        "linearretry-on404": {
+            "RetryPolicyId": "linearretry-on404",
+            "TimeoutMs": 10000,
+            "RetryOptions": {
+                "MaxRetryCount": 1,
+                "RetryDelayMs": 50,
+                "RetryGrowth": 1.0,
+                "RetryJitterMs": 10,
+                "RetryIfNotFound": true
+            }
+        },
+        "linearretry": {
+            "RetryPolicyId": "linearretry",
+            "TimeoutMs": 10000,
+            "RetryOptions": {
+                "MaxRetryCount": 1,
+                "RetryDelayMs": 50,
+                "RetryGrowth": 1.0,
+                "RetryJitterMs": 10,
+                "RetryIfNotFound": false
+            }
+        },
+        "linearretry-3x": {
+            "RetryPolicyId": "linearretry-3x",
+            "TimeoutMs": 10000,
+            "RetryOptions": {
+                "MaxRetryCount": 3,
+                "RetryDelayMs": 50,
+                "RetryGrowth": 1.0,
+                "RetryJitterMs": 10,
+                "RetryIfNotFound": false
+            }
+        },
+        "delayedexponentialretry": {
+            "RetryPolicyId": "delayedexponentialretry",
+            "TimeoutMs": 10000,
+            "RetryOptions": {
+                "MaxRetryCount": 5,
+                "RetryDelayMs": 2000,
+                "RetryGrowth": 1.25,
+                "RetryJitterMs": 100,
+                "RetryIfNotFound": false
+            }
+        }
+    },
+    "Settings": {},
+    "Endpoints": {
+        "coturnCreateCredentials": {
+            "AuthorityId": "notification",
+            "Path": "/coturn/hmcc",
+            "QueryString": "?service=turn&username={username}",
+            "RetryPolicyId": "exponentialretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "Entitlements_SandboxEntitlements": {
+            "AuthorityId": "entitlements",
+            "Path": "/oban/players/{player}/entitlements/{sandbox}",
+            "QueryString": "",
+            "RetryPolicyId": "exponentialretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "Entitlements_SandboxEntitlementsById": {
+            "AuthorityId": "entitlements",
+            "Path": "/oban/players/{player}/entitlements/{sandbox}/{entitlementId}",
+            "QueryString": "",
+            "RetryPolicyId": "exponentialretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "GameCMS": {
+            "AuthorityId": "gamecms-hacs",
+            "Path": "/branches/{PlatformShortIdentifier}/Global-{GlobalCMSID}/data/",
+            "QueryString": "",
+            "RetryPolicyId": "exponentialretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "GameCMS_Content": {
+            "AuthorityId": "gamecms-hacs",
+            "Path": "/hmcc/none/file/",
+            "QueryString": "?flight={clearanceId}",
+            "RetryPolicyId": "exponentialretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "GameCMS_ContentCategory": {
+            "AuthorityId": "gamecms-hacs",
+            "Path": "/hmcc/{Category}/file/",
+            "QueryString": "?flight={clearanceId}",
+            "RetryPolicyId": "exponentialretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "HaloStats_GetMatchPlayerUpdate": {
+            "AuthorityId": "halostats",
+            "Path": "/hmcc/players/{player}/matches/{matchId}/progression",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry-on404",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "HaloStats_GetPlayerXp": {
+            "AuthorityId": "halostats",
+            "Path": "/hmcc/players/{player}/xp",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "HaloStats_GetDecks": {
+            "AuthorityId": "halostats",
+            "Path": "/hmcc/players/{player}/decks",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "HaloStats_SetChallengeProgress": {
+            "AuthorityId": "halostats",
+            "Path": "/hmcc/players/{player}/decks/{deckId}/challenges/{challengeId}",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry-3x",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "mcclobby_amqp": {
+            "AuthorityId": "lobbyamqp",
+            "Path": "/",
+            "QueryString": "",
+            "RetryPolicyId": "delayedexponentialretry",
+            "TopicName": "/hmcc/mcclobby/{lobbyId}?Players={players}",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": true,
+            "ClearanceAware": false
+        },
+        "Notification_EntityConnection": {
+            "AuthorityId": "notificationamqp",
+            "Path": "/",
+            "QueryString": "",
+            "RetryPolicyId": "delayedexponentialretry",
+            "TopicName": "/hmcc/entities/NetworkId({networkId})",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_GetCatalogItems": {
+            "AuthorityId": "playfab",
+            "Path": "/Client/GetCatalogItems",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_GetItems": {// TODO: look into this one (supposedly just returns random items?)
+            "AuthorityId": "playfab",
+            "Path": "/Catalog/GetItems",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_GetPublishedItem": {
+            "AuthorityId": "mccazurefunctions-pfsessionticket",
+            "Path": "/api/GetPlayFabUgcItem",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_GetStoreItems": { // returns all the purchaseable items from specified store (either seasonal stores or the exchange)
+            "AuthorityId": "playfab",
+            "Path": "/Client/GetStoreItems",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_GetUserInventory": { // returns all the cusotmization items you own
+            "AuthorityId": "playfab",
+            "Path": "/Client/GetUserInventory",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_LoginWithXbox": {
+            "AuthorityId": "playfabxsts",
+            "Path": "/Client/LoginWithXbox",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_GetCurrentGames": { // TODO: look at this one
+            "AuthorityId": "playfab",
+            "Path": "/Client/GetCurrentGames",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_DeleteDraftItem": {
+            "AuthorityId": "mccazurefunctions-pfsessionticket",
+            "Path": "/api/DeletePlayFabUgcItem",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_ListQosServersForTitle": {
+            "AuthorityId": "playfab",
+            "Path": "/MultiplayerServer/ListQosServersForTitle",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_LinkSteamAccount": {
+            "AuthorityId": "playfab",
+            "Path": "/Client/LinkSteamAccount",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_UnlinkSteamAccount": {
+            "AuthorityId": "playfab",
+            "Path": "/Client/UnlinkSteamAccount",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "PlayFab_ReportUgcItem": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ReportPlayFabUgcItem",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "Settings_PlayerClearance": {
+            "AuthorityId": "settings_st4",
+            "Path": "/oban/flight-configurations/titles/hmcc/audiences/RETAIL/players/{player}/active",
+            "QueryString": "?GlobalCMSID=",
+            "RetryPolicyId": "exponentialretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "Stats_GetBanSummary": {
+            "AuthorityId": "banprocessor",
+            "Path": "/hmcc/bansummary",
+            "QueryString": "?targets={player},Authenticated(Device)",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "thgetgsisets": {
+            "AuthorityId": "lobby",
+            "Path": "/titles/{cloudTitleId}/variants",
+            "QueryString": "",
+            "RetryPolicyId": "exponentialretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "thgetqos": {
+            "AuthorityId": "lobby",
+            "Path": "/xplatqosservers",
+            "QueryString": "",
+            "RetryPolicyId": "exponentialretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "thpostsession": {
+            "AuthorityId": "lobby",
+            "Path": "/titles/{cloudTitleId}/sessionhosts",
+            "QueryString": "",
+            "RetryPolicyId": "exponentialretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ListMultiplayerServerBuilds": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ListMultiplayerServerBuilds",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ProgressionGetBulkPurchaseQuery": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ProgressionGetBulkPurchaseQuery",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ProgressionGetUnlockableContainers": { // lists all seasonal 'stores', just returns all the names of the seasons basically
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ProgressionGetUnlockableContainers",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ProgressionPurchaseAndUnlockContainer": { // purchase season pass item
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ProgressionPurchaseAndUnlockContainer",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ProgressionPurchaseFreemiumStoreItem": { // purchase exchange item
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ProgressionPurchaseFreemiumStoreItem",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ProgressionCachePlayerXPToPlayFab": { // returns logged in player XP
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ProgressionCachePlayerXPToPlayFab",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ProgressionWritePlayFabEntityObjects": { // used with golden moas and probably elsewhere
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ProgressionWritePlayFabEntityObjects",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ProgressionSynchronizeInventory": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ProgressionSynchronizeInventory",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ChatStringPublicKey": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ChatStringPublicKey",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ValidateChatString": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ValidateChatString",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ValidateString": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ValidateString",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_UploadFile": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/UploadFile",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_GetFileSharePublicKeys": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/GetFileSharePublicKeys",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_GetUploadPermission": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/GetUploadPermission",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_GetPlayFabUgcItems": { // get players fileshare items
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/GetPlayFabUgcItems",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_TestUsersForTrustedFileShareStatus": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/TestUsersForTrustedFileShareStatus",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_CustomizationWriteEntityObject": { // sets a few customization options
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/CustomizationWritePlayFabEntityObject",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_RequestMultiplayerServer": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/RequestMultiplayerServer",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ShutdownMultiplayerServer": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ShutdownMultiplayerServer",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ReportMultiplayerServer": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ReportMultiplayerServer",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ServerListListMultiplayerServers": { // get CGB sessions list
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ServerListListMultiplayerServers",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_GetLicenseToken": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/GetLicenseToken",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_ReportPlayer": {
+            "AuthorityId": "mccazurefunctions",
+            "Path": "/api/ReportPlayer",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "MCCAzureFunctions_PlayerLogin": { // seems to just return rank info, but likely 'logs' you in??
+            "AuthorityId": "mccazurefunctions", // uses playfab session ticket
+            "Path": "/api/PlayerLogin",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        },
+        "OneStore_Collection": {
+            "AuthorityId": "onestore",
+            "Path": "/v8.0/collections / b2bLicensePreview",
+            "QueryString": "",
+            "RetryPolicyId": "linearretry",
+            "TopicName": "",
+            "AcknowledgementTypeId": 0,
+            "AuthenticationLifetimeExtensionSupported": false,
+            "ClearanceAware": false
+        }
+    }
+}
