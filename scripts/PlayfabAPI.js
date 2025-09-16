@@ -51,14 +51,53 @@ async function API_Get_CGBList(){
     return cgb_list;
 }
 
+// NOTE: challenge details can be found with this url: gamecms-hacs.svc.halowaypoint.com/hmcc/progression/file + /game/challenges/ClientChallengeDefinitions/WeeklyPVE/ChallengeFinishedWeeklyPVEChallenge.json
 async function API_Get_Challenges(){
     const sisu_auth = await Storage_GetSISUAuth();
     const spartan_token = await Storage_GetSpartanToken(); // .SpartanToken
+    const clearance = await Waypoint_RequestClearance();
     UI_PushJob("requesting player challenges...");
     const headers = {'Accept':'application/json', 'X-343-Authorization-Spartan':spartan_token.SpartanToken}
     // NOTE: xuid must match owner of spartan token !!!! so we cant lookup other players challenges
     const res = await fetch('https://halostats.svc.halowaypoint.com/hmcc/players/xuid('+ sisu_auth.AuthorizationToken.xid + ')/decks', { method: 'get', headers })
-    return await res.json();
+    const ret = await res.json();
+
+
+    async function convert_challenge_url(object){
+        try{
+        target_url = 'https://gamecms-hacs.svc.halowaypoint.com/hmcc/progression/file/' + object.Path + "?flight=" + clearance;
+        const res = await fetch(target_url, { method: 'get', headers:{'Accept':'application/json'} })
+        object.data = await res.json();
+        } catch (ex){object.data=undefined; console.log("challenge details fetch encountered error: " + ex)} // NOTE: setting to undefined is placeholder logic??
+    }
+    function makeStatusAware(object) {
+        let isPending = true;
+        const result = convert_challenge_url(object).then((value) => {isPending = false; return value;});
+        result.isPending = () => isPending;
+        return result;
+    }
+    let fetch_list = [];
+    for (let i = 0; i < ret.AssignedDecks.length; i++){
+        curr_deck = ret.AssignedDecks[i];
+        fetch_list.push(makeStatusAware(curr_deck));
+        for (let j = 0; j < curr_deck.ActiveChallenges.length; j++)
+            fetch_list.push(makeStatusAware(curr_deck.ActiveChallenges[j]));
+        for (let j = 0; j < curr_deck.CompletedChallenges.length; j++)
+            fetch_list.push(makeStatusAware(curr_deck.CompletedChallenges[j]));
+    }
+
+    let total_fetches = fetch_list.length;
+    while (fetch_list.length > 0){
+        UI_PushJob("awaiting challenge details return (" + (total_fetches-fetch_list.length)  + "/" + total_fetches + ")");
+        await sleep(300);
+        for (let i = 0; i < fetch_list.length; i++){
+            if (!fetch_list[i].isPending()){
+                fetch_list.splice(i, 1);
+                i--;
+            }
+        }
+    }
+    return ret;
 }
 async function API_Update_Challenges(deck_id, challenge_id, progress_state){
     const sisu_auth = await Storage_GetSISUAuth();
@@ -183,7 +222,7 @@ async function API_Get_StoreDatabase(store_id){
 // - purchasing already owned item
 // - purchasing item that you dont have permission to unlock (must own all previous items in season)
 // - mismatch betwen item id and store id (must indicate correct store ID)
-// - purchasing freemium items
+// - purchasing freemium items?? (needs verifying, but seems like this functionality would be useless regardless)
 async function API_PurchaseSeasonal(store_id, item_id){
     const playfab_auth = await Storage_GetPlayfabSessionToken();
     const spartan_token = await Storage_GetSpartanToken();
@@ -207,8 +246,6 @@ async function API_PurchaseFreemium(item_id){
     const res = await fetch('https://mcc-production.azurefd.net/api/ProgressionPurchaseFreemiumStoreItem', { method: 'post', headers, body })
     return (await res.json());
 }
-
-
 
 /*
 

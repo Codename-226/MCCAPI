@@ -23,6 +23,8 @@ async function generateECKeyPair() {
 	return keyPair;
 }
 
+        function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms));}
+		
 function decodeAndDecompress(base64String) {
   // Step 1: Decode Base64 to binary
   const binaryString = atob(base64String);

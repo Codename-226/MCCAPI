@@ -52,6 +52,10 @@ function Storage_WipeTokens(){
     SpartanToken = undefined;
     localStorage.clear();
 }
+function Storage_WipeDeviceToken(){
+    localStorage.removeItem("DeviceToken");
+    DeviceToken = undefined;
+}
 function IsTokenValid(token, log_content) {
     if (!token) return false;
 	const remainingMs = new Date(token.expiresOn) - Date.now();
@@ -172,5 +176,6 @@ async function getXboxToken() {
         return;
 	}  catch (ex){
 		console.log("Xbox access auth process failed." + ex)
+        console.log(ex)
 	}
 }
