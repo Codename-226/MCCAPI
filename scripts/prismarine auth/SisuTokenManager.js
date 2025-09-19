@@ -42,6 +42,14 @@ async function PKCE_generate(){
         .replace(/=+$/, '');
     PKCE_code_challenge = base64url;
 }
+function generateMsCv() {
+  const base = [...Array(16)]
+    .map(() => Math.floor(Math.random() * 16).toString(16))
+    .join('');
+  const version = Math.floor(Math.random() * 100) + 1;
+  return `${base}.${version}`;
+}
+mscv = generateMsCv(); // "XOjuYsE7X8zUuM5r"; // 
 
 async function Sisu_BeginAuth(sisu_token){
     // if we had any expired tokens in storage, try to refresh them, otherwise generate new tokens 
@@ -76,7 +84,7 @@ async function Sisu_BeginAuth(sisu_token){
 
     const signature = await sign('https://sisu.xboxlive.com/authenticate', '', body);
     const headers = {"Connection":"Keep-Alive","Content-Type":"application/json; charset=utf-8",
-        "MS-CV":"XOjuYsE7X8zUuM5r.5.0",
+        "MS-CV":mscv +".5.0",
         signature,
         //"User-Agent":"XAL Win32 2020.11.20201204.001",
         "x-xbl-contract-version":"1",
@@ -114,7 +122,7 @@ async function Sisu_BeginAuth(sisu_token){
         const headers = {
             "Connection":"Keep-Alive",
             "Content-Type":"application/x-www-form-urlencoded; charset=utf-8",
-            "MS-CV":"XOjuYsE7X8zUuM5r.5.2",
+            "MS-CV":mscv+".5.2",
             //"User-Agent":"XAL Win32 2020.11.20201204.001",
         }
         const body = payload.toString();
@@ -164,7 +172,7 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
     const signature = await sign('https://sisu.xboxlive.com/authorize', '', body);
     const headers = {
         "Content-Type":"application/json; charset=utf-8",
-        "MS-CV":"XOjuYsE7X8zUuM5r.5.3",
+        "MS-CV":mscv+".5.3", // XOjuYsE7X8zUuM5r
         "Signature": signature,
     }
     const res = await fetch('https://sisu.xboxlive.com/authorize', {
@@ -175,8 +183,15 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
     const ret = await res.json()
     console.log(ret)
     // make xsts token thing a bit easier to use with functions
-    ret.AuthorizationToken.uhs = ret.AuthorizationToken.DisplayClaims.xui[0].uhs;
-    ret.AuthorizationToken.xid = ret.AuthorizationToken.DisplayClaims.xui[0].xid;
+    //if (ret.AuthorizationToken){
+        ret.AuthorizationToken.uhs = ret.AuthorizationToken.DisplayClaims.xui[0].uhs;
+        ret.AuthorizationToken.xid = ret.AuthorizationToken.DisplayClaims.xui[0].xid;
+    //} else {
+    //    // NOTE, didn't get a chance to test this so no point in actually committing it
+    //    console.log("failed to get xsts from sisu auth, trying manually");
+    //    ret.AuthorizationToken = await getXSTSToken(ret.UserToken, device_token, ret.TitleToken);
+    //    console.log(ret.AuthorizationToken);
+    //}
 
 
     // slap expiry date labels on just the base token
@@ -202,7 +217,7 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
     //     const headers = {
     //         'Authorization':'XBL3.0 x='+xsts_userhash+';'+xsts_token,
     //         "Connection":"Keep-Alive",
-    //         "MS-CV":"KP1CPiLj5xBGOYE2.3.2",
+    //         "MS-CV":mscv+".3.2",
     //         //"User-Agent":"XAL Win32 2020.11.20201204.001",
     //         "x-xbl-contract-version":"1",
     //         signature,

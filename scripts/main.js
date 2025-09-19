@@ -127,6 +127,13 @@ async function UI_PurchaseFreemium(){
 	} catch (ex){UI_PostLog(ex)};
 	UI_PopJobs();
 }
+async function UI_UploadCustomizations(){
+	UI_PushJob("uploading customizations...");
+	try{
+        UI_PostLog(await API_UploadCustomizations());
+	} catch (ex){UI_PostLog(ex)};
+	UI_PopJobs();
+}
 
 
 

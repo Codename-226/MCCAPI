@@ -234,9 +234,21 @@ async function API_PurchaseFreemium(item_id){
     return (await res.json());
 }
 
+// NOTE: this is pretty much useless as this api is constantly called ingame and overwrites whatever you set it to externally
+// notably you can use this for accounts that you dont play on. IE inactive accounts or fileshare alts, since you'll never log in to overwrite the data
+// seems like a neat thing to set essential bio text in your player details section
+async function API_UploadCustomizations(){
+    const playfab_auth = await Storage_GetPlayfabSessionToken();
+    UI_PushJob("uploading customizations...");
+    const body = JSON.stringify({"PlayerCustomization":{"c0":31,"c1":32,"c2":33,"e0":1,"e1":1,"s":"Epic !!!!!!","c":"Welcome to my epic profile. Many epic characters in this string. Status: Epic","a":34,"n":154}});
+    const headers = {'Accept':'application/json, Application/json', 'Content-Type':'text/plain; charset=utf-8', 'x-auth-token':playfab_auth.SessionTicket}
+    const res = await fetch('https://mcc-production.azurefd.net/api/CustomizationWritePlayFabEntityObject', { method: 'post', headers, body })
+    return (await res.json());
+    // max c character count: 139 characters or 356 base64 characters?
+    // max s character count: no idea, but looks funny "Epic !!!!!!"
+}
+
 /*
-
-
 
 
 
@@ -268,11 +280,6 @@ mcc-production.azurefd.net/api/ProgressionGetUnlockableContainers
 - x-auth-token: (playfab session ticket)
 -> returns {"PlayFabStoreIds":["Season1","Season2","Season3","Season4","Season5","Season6","Season7","Season8"]}
 
-mcc-production.azurefd.net/api/CustomizationWritePlayFabEntityObject
-- Accept:application/json, Application/json
-- Content-Type:text/plain; charset=utf-8
-- x-auth-token: (playfab session ticket)
-- {"PlayerCustomization":{"c0":2,"c1":3,"c2":1,"e0":49,"e1":505,"s":"JT0","c":"UNSC","a":6,"n":1}}
 
 
 to get:
