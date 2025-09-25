@@ -178,7 +178,15 @@ async function API_Get_ProfileFromXUID(xuid){
     const res = await fetch('https://profile.xboxlive.com/users/batch/profile/settings', { method: 'post', headers, body })
     return (await res.json()).profileUsers[0];
 }
-
+async function API_Get_ProfileFromXUIDs(xuids){
+    const sisu_auth = await Storage_GetSISUAuth();
+    UI_PushJob("getting profile from XUID...");
+    const body = JSON.stringify({"userIds":xuids,"settings":["AppDisplayName","AppDisplayPicRaw","GameDisplayName","GameDisplayPicRaw","Gamerscore","Gamertag","ModernGamertag","ModernGamertagSuffix","UniqueModernGamertag"]});
+    // NOTE: MCC provides a signature param here, but doesnt seem to need it
+    const headers = {'Accept-Language':'en-US,en', 'Content-Type':'application/json; charset=utf-8', 'x-xbl-contract-version':'2', 'Authorization':FormatXSTS(sisu_auth.AuthorizationToken)}
+    const res = await fetch('https://profile.xboxlive.com/users/batch/profile/settings', { method: 'post', headers, body })
+    return (await res.json());
+}
 
 
 async function API_Get_Unlocks(){
