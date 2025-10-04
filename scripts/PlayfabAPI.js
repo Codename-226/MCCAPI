@@ -41,7 +41,7 @@ async function Waypoint_RequestClearance(){
 async function API_Get_CGBList(){
     playfab_auth = await Storage_GetPlayfabSessionToken();
     UI_PushJob("requesting CGB server list...");
-    const body = JSON.stringify({"BuildId":"2025.02.25.178468.1-Release","MaxResults":2000});
+    const body = JSON.stringify({"BuildId":"2025.08.16.178512.1-Release","MaxResults":2000}); // prior to september update "2025.02.25.178468.1-Release"
     const headers = {'Content-Type':'application/json', 'Accept':'application/json', 'x-auth-token':playfab_auth.SessionTicket}
     const res = await fetch('https://mcc-production.azurefd.net/api/ServerListListMultiplayerServers', { method: 'post', headers, body })
     const cgb_list = (await res.json()).data;

@@ -183,15 +183,17 @@ async function Sisu_AuthUser(sisu_xbl_tokens){
     const ret = await res.json()
     console.log(ret)
     // make xsts token thing a bit easier to use with functions
-    //if (ret.AuthorizationToken){
+    if (ret.AuthorizationToken){
         ret.AuthorizationToken.uhs = ret.AuthorizationToken.DisplayClaims.xui[0].uhs;
         ret.AuthorizationToken.xid = ret.AuthorizationToken.DisplayClaims.xui[0].xid;
-    //} else {
-    //    // NOTE, didn't get a chance to test this so no point in actually committing it
-    //    console.log("failed to get xsts from sisu auth, trying manually");
-    //    ret.AuthorizationToken = await getXSTSToken(ret.UserToken, device_token, ret.TitleToken);
-    //    console.log(ret.AuthorizationToken);
-    //}
+    } else {
+        // NOTE: also for some reason commenting this out makes the logic fail? even though its  never hit
+        //       must be some sort of weird coincidence.
+        // NOTE, didn't get a chance to test this so no point in actually committing it
+        console.log("failed to get xsts from sisu auth, trying manually");
+        ret.AuthorizationToken = await getXSTSToken(ret.UserToken, device_token, ret.TitleToken);
+        console.log(ret.AuthorizationToken);
+    }
 
 
     // slap expiry date labels on just the base token
